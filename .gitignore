@@ -6,11 +6,23 @@ node_modules/
 coverage/
 *.class
 
+# ===== 패키지 파일 (Maven Wrapper jar 는 예외로 허용) =====
+*.jar
+!backend/.mvn/wrapper/maven-wrapper.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
 # ===== 로그 / 임시 파일 =====
 *.log
 npm-debug.log*
 *.tmp
 *.swp
+hs_err_pid*
+replay_pid*
 
 # ===== 환경 변수 / 비밀 정보 =====
 .env
@@ -28,6 +40,8 @@ uploads/
 *.iml
 .vscode/
 *.code-workspace
+*.ctxt
+.mtj.tmp/
 .DS_Store
 Thumbs.db
 desktop.ini
