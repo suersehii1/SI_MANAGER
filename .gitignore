@@ -1,0 +1,37 @@
+# ===== 빌드 산출물 =====
+backend/target/
+frontend/dist/
+frontend/node_modules/
+node_modules/
+coverage/
+*.class
+
+# ===== 로그 / 임시 파일 =====
+*.log
+npm-debug.log*
+*.tmp
+*.swp
+
+# ===== 환경 변수 / 비밀 정보 =====
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ===== 로컬 실행 데이터 (업로드 파일 등) =====
+data/
+uploads/
+
+# ===== IDE / OS =====
+.idea/
+*.iml
+.vscode/
+*.code-workspace
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== Claude Code 로컬 설정 (에이전트 정의 .claude/agents 는 공유) =====
+.claude/settings.local.json
+.claude/worktrees/
