@@ -7,7 +7,9 @@ const props = defineProps({
   rows: { type: Array, default: () => [] },
   loading: { type: Boolean, default: false },
   // false(일반 USER)면 수정 작업 컬럼을 숨긴다
-  canEdit: { type: Boolean, default: true }
+  canEdit: { type: Boolean, default: true },
+  // 표 높이 (기본 480px, 부모 영역을 꽉 채우려면 '100%' → 행이 많으면 표 안에서 스크롤)
+  height: { type: String, default: '480px' }
 })
 const emit = defineEmits(['edit'])
 
@@ -49,10 +51,10 @@ function onCellClicked(event) {
 </script>
 
 <template>
-  <div data-testid="user-table">
+  <div data-testid="user-table" :style="{ height: props.height }">
     <ag-grid-vue
       :class="GRID_THEME_CLASS"
-      style="width: 100%; height: 480px"
+      style="width: 100%; height: 100%"
       :row-data="rows"
       :column-defs="columnDefs"
       :default-col-def="defaultColDef"

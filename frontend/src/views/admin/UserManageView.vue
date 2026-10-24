@@ -56,12 +56,12 @@ onMounted(load)
 </script>
 
 <template>
-  <div>
+  <div class="um">
     <div class="page-header">
       <h2 class="page-title">사용자 관리</h2>
       <el-button v-if="auth.isAdmin" type="primary" data-testid="new-user-btn" @click="openCreate"><el-icon><Plus /></el-icon>&nbsp;사용자 등록</el-button>
     </div>
-    <div class="card">
+    <div class="card um__card">
       <div class="toolbar">
         <el-input v-model="query.keyword" :placeholder="auth.isAdmin ? '아이디/이름/영어이름/이메일' : '이름/영어이름/이메일'" clearable style="width: 220px" @keyup.enter="search" />
         <el-select v-model="query.enabled" placeholder="상태" clearable style="width: 120px" @change="search">
@@ -70,7 +70,7 @@ onMounted(load)
         </el-select>
         <el-button type="primary" @click="search">검색</el-button>
       </div>
-      <UserTable :rows="rows" :loading="loading" :can-edit="auth.isAdmin" @edit="onEdit" />
+      <UserTable class="um__table" height="100%" :rows="rows" :loading="loading" :can-edit="auth.isAdmin" @edit="onEdit" />
       <div class="pagination-bar">
         <el-pagination
           :current-page="query.page + 1"
@@ -85,3 +85,24 @@ onMounted(load)
     <UserFormModal v-model="formVisible" :user="editing" @saved="onSaved" />
   </div>
 </template>
+
+<style scoped>
+/* 화면 높이에 딱 맞춤 (Admin 탭 아래 남은 높이 = 100%): 제목·검색·페이지 이동은 고정, 표만 남은 높이를 채운다 */
+.um {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 400px;
+}
+.um__card {
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
+.um__table {
+  flex: 1;
+  min-height: 0;
+}
+</style>

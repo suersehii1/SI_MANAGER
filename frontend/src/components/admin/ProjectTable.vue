@@ -14,7 +14,9 @@ const props = defineProps({
   sort: { type: String, default: 'plannedStartDate,desc' },
   loading: { type: Boolean, default: false },
   // false(일반 USER)면 수정/삭제 버튼을 숨긴다 (할당·WBS 보기는 그대로)
-  canEdit: { type: Boolean, default: true }
+  canEdit: { type: Boolean, default: true },
+  // 표 높이 (기본 480px, 부모 영역을 꽉 채우려면 '100%' → 행이 많으면 표 안에서 스크롤)
+  height: { type: String, default: '480px' }
 })
 const emit = defineEmits(['sort-change', 'edit', 'delete', 'assignments', 'wbs'])
 const editable = () => props.canEdit
@@ -70,10 +72,10 @@ function onCellClicked(event) {
 </script>
 
 <template>
-  <div data-testid="project-table">
+  <div data-testid="project-table" :style="{ height: props.height }">
     <ag-grid-vue
       :class="GRID_THEME_CLASS"
-      style="width: 100%; height: 480px"
+      style="width: 100%; height: 100%"
       :row-data="rows"
       :column-defs="columnDefs"
       :default-col-def="defaultColDef"

@@ -62,7 +62,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-loading="loading">
+  <div v-loading="loading" class="am">
     <div class="page-header">
       <div>
         <el-button link @click="router.push({ name: 'admin-projects' })">
@@ -87,8 +87,8 @@ onMounted(() => {
         <el-descriptions-item label="할당 인원">{{ project.assignedHeadcount }}명</el-descriptions-item>
       </el-descriptions>
     </div>
-    <div class="card">
-      <AssignmentTable :rows="rows" :loading="loading" :can-edit="auth.isAdmin" @edit="onEdit" @delete="onDelete" />
+    <div class="card am__card">
+      <AssignmentTable class="am__table" height="100%" :rows="rows" :loading="loading" :can-edit="auth.isAdmin" @edit="onEdit" @delete="onDelete" />
     </div>
     <AssignmentFormModal
       v-if="project"
@@ -100,3 +100,24 @@ onMounted(() => {
     />
   </div>
 </template>
+
+<style scoped>
+/* 화면 높이에 딱 맞춤 (Admin 탭 아래 남은 높이 = 100%): 제목·검색·페이지 이동은 고정, 표만 남은 높이를 채운다 */
+.am {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 400px;
+}
+.am__card {
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
+.am__table {
+  flex: 1;
+  min-height: 0;
+}
+</style>

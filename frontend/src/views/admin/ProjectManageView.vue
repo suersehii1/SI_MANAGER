@@ -86,14 +86,14 @@ onMounted(load)
 </script>
 
 <template>
-  <div>
+  <div class="pm">
     <div class="page-header">
       <h2 class="page-title">프로젝트 관리</h2>
       <el-button v-if="auth.isAdmin" type="primary" data-testid="new-project-btn" @click="openCreate">
         <el-icon><Plus /></el-icon>&nbsp;프로젝트 등록
       </el-button>
     </div>
-    <div class="card">
+    <div class="card pm__card">
       <div class="toolbar">
         <el-input v-model="query.keyword" placeholder="코드/이름/고객사" clearable style="width: 220px" @keyup.enter="search" />
         <el-select v-model="query.status" placeholder="상태" clearable style="width: 130px" @change="search">
@@ -102,6 +102,8 @@ onMounted(load)
         <el-button type="primary" @click="search">검색</el-button>
       </div>
       <ProjectTable
+        class="pm__table"
+        height="100%"
         :rows="rows"
         :sort="query.sort"
         :loading="loading"
@@ -128,3 +130,24 @@ onMounted(load)
     <ProjectFormModal v-model="formVisible" :project="editing" @saved="onSaved" />
   </div>
 </template>
+
+<style scoped>
+/* 화면 높이에 딱 맞춤 (Admin 탭 아래 남은 높이 = 100%): 제목·검색·페이지 이동은 고정, 표만 남은 높이를 채운다 */
+.pm {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 400px;
+}
+.pm__card {
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
+.pm__table {
+  flex: 1;
+  min-height: 0;
+}
+</style>
