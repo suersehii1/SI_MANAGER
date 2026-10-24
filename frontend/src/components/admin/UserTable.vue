@@ -15,7 +15,7 @@ const emit = defineEmits(['edit'])
 // 아이디는 ADMIN(canEdit)에게만 보인다 (서버도 일반 USER에게는 아이디를 비워서 보냄)
 const columnDefs = [
   { field: 'username', headerName: '아이디', width: 130, hide: !props.canEdit },
-  { field: 'name', headerName: '이름', width: 110 },
+  { field: 'name', headerName: '이름', width: 140 },
   { field: 'englishName', headerName: '영어이름', width: 150 },
   { field: 'email', headerName: '이메일', flex: 1, minWidth: 180 },
   { field: 'phone', headerName: '전화번호', width: 140 },

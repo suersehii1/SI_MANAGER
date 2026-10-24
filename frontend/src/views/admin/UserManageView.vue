@@ -63,7 +63,7 @@ onMounted(load)
     </div>
     <div class="card">
       <div class="toolbar">
-        <el-input v-model="query.keyword" placeholder="아이디/이름/이메일" clearable style="width: 220px" @keyup.enter="search" />
+        <el-input v-model="query.keyword" :placeholder="auth.isAdmin ? '아이디/이름/영어이름/이메일' : '이름/영어이름/이메일'" clearable style="width: 220px" @keyup.enter="search" />
         <el-select v-model="query.enabled" placeholder="상태" clearable style="width: 120px" @change="search">
           <el-option label="활성" :value="true" />
           <el-option label="비활성" :value="false" />
