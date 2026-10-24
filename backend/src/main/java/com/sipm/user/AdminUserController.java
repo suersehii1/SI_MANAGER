@@ -25,7 +25,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/users")
-@PreAuthorize("hasRole('ADMIN')")
 public class AdminUserController {
     private static final Map<String, String> SORTS = Map.of(
             "id", "id", "username", "username", "name", "name", "createdAt", "createdAt");
@@ -46,12 +45,14 @@ public class AdminUserController {
                 request.getParameterValues("sort"), SORTS, "username,asc", false));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<UserResponse> create(@Valid @RequestBody UserCreateRequest req) {
         UserResponse created = userService.create(req);
         return ResponseEntity.created(URI.create("/api/admin/users/" + created.id())).body(created);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public UserResponse update(@PathVariable Long id, @Valid @RequestBody UserUpdateRequest req,
                                @AuthenticationPrincipal AppUserPrincipal me) {

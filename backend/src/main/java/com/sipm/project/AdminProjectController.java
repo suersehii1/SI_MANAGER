@@ -23,10 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.net.URI;
 import java.util.Map;
 
-/** ADMIN 전용 프로젝트 CRUD (#7~#11). URL 레벨 + 클래스 레벨 @PreAuthorize 이중 방어. */
+/** 프로젝트 CRUD (#7~#11). 조회는 로그인 사용자 모두, 등록/수정/삭제는 ADMIN만 (URL 규칙 + 메서드 @PreAuthorize 이중 방어). */
 @RestController
 @RequestMapping("/api/admin/projects")
-@PreAuthorize("hasRole('ADMIN')")
 public class AdminProjectController {
     private static final Map<String, String> SORTS = Map.of(
             "id", "id", "code", "code", "name", "name", "status", "status",
@@ -54,6 +53,7 @@ public class AdminProjectController {
         return projectService.getResponse(id);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ProjectResponse> create(@Valid @RequestBody ProjectRequest req,
                                                   @AuthenticationPrincipal AppUserPrincipal me) {
@@ -61,11 +61,13 @@ public class AdminProjectController {
         return ResponseEntity.created(URI.create("/api/admin/projects/" + created.id())).body(created);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ProjectResponse update(@PathVariable Long id, @Valid @RequestBody ProjectRequest req) {
         return projectService.update(id, req);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         projectService.delete(id);

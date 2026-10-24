@@ -53,7 +53,8 @@ public class SecurityConfig {
     /**
      * 보안 필터 체인 (specs §8.2).
      * - 세션 없는 JWT 인증: JwtAuthenticationFilter가 Bearer 토큰을 검증하고 SecurityContext를 채운다.
-     * - URL 레벨 1차 방어: /api/admin/** 는 ROLE_ADMIN. 컨트롤러 클래스의 @PreAuthorize가 2차 방어.
+     * - URL 레벨 1차 방어: /api/admin/** 의 GET(조회)은 로그인 사용자 모두, 그 외(등록/수정/삭제)는 ROLE_ADMIN.
+     *   Admin 컨트롤러의 쓰기 메서드에 붙은 @PreAuthorize("hasRole('ADMIN')")가 2차 방어.
      * - 필터 단계의 401/403도 JsonAuthEntryPoint / JsonAccessDeniedHandler가 공통 에러 JSON으로 응답.
      */
     @Bean
@@ -76,6 +77,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
                         .requestMatchers("/error").permitAll()
+                        // Admin 콘솔: 조회(GET)는 로그인한 모든 사용자, 등록/수정/삭제는 ADMIN만
+                        .requestMatchers(HttpMethod.GET, "/api/admin/**").authenticated()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().denyAll())

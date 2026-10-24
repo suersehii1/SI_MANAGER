@@ -4,12 +4,15 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { listAdminProjects, deleteProject } from '@/api/admin'
 import { useLookupStore } from '@/stores/lookup'
+import { useAuthStore } from '@/stores/auth'
 import { PROJECT_STATUS, toOptions } from '@/utils/constants'
 import ProjectTable from '@/components/admin/ProjectTable.vue'
 import ProjectFormModal from '@/components/admin/ProjectFormModal.vue'
 
 const router = useRouter()
 const lookup = useLookupStore()
+// 일반 USER는 조회 전용: 등록/수정/삭제 버튼을 숨긴다 (서버도 403으로 막음)
+const auth = useAuthStore()
 
 const rows = ref([])
 const total = ref(0)
@@ -86,7 +89,7 @@ onMounted(load)
   <div>
     <div class="page-header">
       <h2 class="page-title">프로젝트 관리</h2>
-      <el-button type="primary" data-testid="new-project-btn" @click="openCreate">
+      <el-button v-if="auth.isAdmin" type="primary" data-testid="new-project-btn" @click="openCreate">
         <el-icon><Plus /></el-icon>&nbsp;프로젝트 등록
       </el-button>
     </div>
@@ -102,6 +105,7 @@ onMounted(load)
         :rows="rows"
         :sort="query.sort"
         :loading="loading"
+        :can-edit="auth.isAdmin"
         @sort-change="onSortChange"
         @edit="onEdit"
         @delete="onDelete"

@@ -25,7 +25,8 @@ export const routes = [
       {
         path: 'admin',
         component: () => import('@/layouts/AdminLayout.vue'),
-        meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] },
+        // Admin 콘솔: 로그인 사용자 모두 진입 가능. 일반 USER는 조회 전용(등록/수정/삭제 버튼 숨김, 서버도 403)
+        meta: { requiresAuth: true },
         redirect: '/admin/projects',
         children: [
           {

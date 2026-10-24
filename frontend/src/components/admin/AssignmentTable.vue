@@ -5,9 +5,11 @@ import {
 } from '@/utils/grid'
 import { formatPeriod } from '@/utils/format'
 
-defineProps({
+const props = defineProps({
   rows: { type: Array, default: () => [] },
-  loading: { type: Boolean, default: false }
+  loading: { type: Boolean, default: false },
+  // false(일반 USER)면 수정/제외 작업 컬럼을 숨긴다
+  canEdit: { type: Boolean, default: true }
 })
 const emit = defineEmits(['edit', 'delete'])
 
@@ -30,6 +32,7 @@ const columnDefs = [
     colId: 'actions',
     width: 130,
     pinned: 'right',
+    hide: !props.canEdit,
     cellRenderer: actionsRenderer([
       { action: 'edit', label: '수정', type: 'primary', testid: 'assignment-edit' },
       { action: 'delete', label: '제외', type: 'danger', testid: 'assignment-delete' }

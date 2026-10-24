@@ -12,9 +12,12 @@ import { formatPeriod } from '@/utils/format'
 const props = defineProps({
   rows: { type: Array, default: () => [] },
   sort: { type: String, default: 'plannedStartDate,desc' },
-  loading: { type: Boolean, default: false }
+  loading: { type: Boolean, default: false },
+  // false(일반 USER)면 수정/삭제 버튼을 숨긴다 (할당·WBS 보기는 그대로)
+  canEdit: { type: Boolean, default: true }
 })
 const emit = defineEmits(['sort-change', 'edit', 'delete', 'assignments', 'wbs'])
+const editable = () => props.canEdit
 
 const keepServerOrder = () => 0
 const [initialField, initialDir] = props.sort.split(',')
@@ -43,13 +46,13 @@ const columnDefs = [
   {
     headerName: '작업',
     colId: 'actions',
-    width: 260,
+    width: props.canEdit ? 260 : 160,
     pinned: 'right',
     cellRenderer: actionsRenderer([
-      { action: 'assignments', label: '할당 관리', type: 'success', testid: 'project-assignments' },
+      { action: 'assignments', label: props.canEdit ? '할당 관리' : '할당 보기', type: 'success', testid: 'project-assignments' },
       { action: 'wbs', label: 'WBS', type: 'warning', testid: 'project-wbs' },
-      { action: 'edit', label: '수정', type: 'primary', testid: 'project-edit' },
-      { action: 'delete', label: '삭제', type: 'danger', testid: 'project-delete' }
+      { action: 'edit', label: '수정', type: 'primary', testid: 'project-edit', visible: editable },
+      { action: 'delete', label: '삭제', type: 'danger', testid: 'project-delete', visible: editable }
     ])
   }
 ]

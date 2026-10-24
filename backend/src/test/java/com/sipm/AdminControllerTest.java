@@ -45,32 +45,59 @@ class AdminControllerTest extends ApiTestSupport {
     // ===================== 1. 보안 및 권한 =====================
 
     /** specs §4.4 #7~#20: 모든 Admin 엔드포인트 */
-    static Stream<Arguments> adminEndpoints() {
+    /** Admin 콘솔 쓰기 API (등록/수정/삭제): ADMIN만 */
+    static Stream<Arguments> adminWriteEndpoints() {
         return Stream.of(
-                Arguments.of("GET", "/api/admin/projects"),
-                Arguments.of("GET", "/api/admin/projects/1"),
                 Arguments.of("POST", "/api/admin/projects"),
                 Arguments.of("PUT", "/api/admin/projects/1"),
                 Arguments.of("DELETE", "/api/admin/projects/1"),
-                Arguments.of("GET", "/api/admin/projects/1/assignments"),
                 Arguments.of("POST", "/api/admin/projects/1/assignments"),
                 Arguments.of("PUT", "/api/admin/projects/1/assignments/1"),
                 Arguments.of("DELETE", "/api/admin/projects/1/assignments/1"),
-                Arguments.of("GET", "/api/admin/users"),
                 Arguments.of("POST", "/api/admin/users"),
-                Arguments.of("PUT", "/api/admin/users/1"),
+                Arguments.of("PUT", "/api/admin/users/1"));
+    }
+
+    /** Admin 콘솔 조회 API: 로그인한 모든 사용자 (일반 USER는 조회 전용) */
+    static Stream<Arguments> adminReadEndpoints() {
+        return Stream.of(
+                Arguments.of("GET", "/api/admin/projects"),
+                Arguments.of("GET", "/api/admin/projects/1"),
+                Arguments.of("GET", "/api/admin/projects/1/assignments"),
+                Arguments.of("GET", "/api/admin/users"),
                 Arguments.of("GET", "/api/admin/timesheet"),
                 Arguments.of("GET", "/api/admin/plan-vs-actual"));
     }
 
+    static Stream<Arguments> adminEndpoints() {
+        return Stream.concat(adminWriteEndpoints(), adminReadEndpoints());
+    }
+
     @ParameterizedTest(name = "USER {0} {1} → 403")
-    @MethodSource("adminEndpoints")
-    void userTokenIsForbiddenOnEveryAdminEndpoint(String method, String url) throws Exception {
+    @MethodSource("adminWriteEndpoints")
+    void userTokenIsForbiddenOnAdminWriteEndpoints(String method, String url) throws Exception {
         mvc.perform(request(HttpMethod.valueOf(method), url).header("Authorization", user())
                         .contentType(MediaType.APPLICATION_JSON).content("{}"))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value("FORBIDDEN"))
                 .andExpect(jsonPath("$.path").value(url));
+    }
+
+    @Test
+    void userCanReadEveryAdminScreen() throws Exception {
+        // 일반 USER도 Admin 콘솔 조회는 가능 (시드 ID는 하드코딩하지 않고 찾아서 사용)
+        String user = user();
+        long p1 = projectId("SI-2026-001");
+        for (String url : List.of("/api/admin/projects", "/api/admin/projects/" + p1,
+                "/api/admin/projects/" + p1 + "/assignments", "/api/admin/users",
+                "/api/admin/timesheet?from=2026-01&to=2026-03&basis=PLAN",
+                "/api/admin/plan-vs-actual?projectId=" + p1)) {
+            mvc.perform(getAs(user, url)).andExpect(status().isOk());
+        }
+        // 조회 응답에 비밀번호(해시)는 없다
+        mvc.perform(getAs(user, "/api/admin/users"))
+                .andExpect(jsonPath("$.content[0].passwordHash").doesNotExist())
+                .andExpect(jsonPath("$.content[0].password").doesNotExist());
     }
 
     @ParameterizedTest(name = "토큰 없음 {0} {1} → 401")
@@ -102,14 +129,26 @@ class AdminControllerTest extends ApiTestSupport {
     }
 
     @Test
-    void adminControllersHaveClassLevelPreAuthorize() {
-        // 2차 방어선: URL 규칙이 바뀌어도 메서드 보안으로 차단되어야 한다 (specs §8.2)
+    void adminWriteMethodsHavePreAuthorize() {
+        // 2차 방어선: URL 규칙이 바뀌어도 쓰기(POST/PUT/DELETE/PATCH) 메서드는 메서드 보안으로 ADMIN만 허용
+        int writeMethods = 0;
         for (Class<?> c : List.of(AdminProjectController.class, AdminAssignmentController.class,
                 AdminUserController.class, AdminTimesheetController.class, AdminPlanActualController.class)) {
-            PreAuthorize pa = c.getAnnotation(PreAuthorize.class);
-            assertThat(pa).as(c.getSimpleName()).isNotNull();
-            assertThat(pa.value()).isEqualTo("hasRole('ADMIN')");
+            for (java.lang.reflect.Method m : c.getDeclaredMethods()) {
+                boolean write = m.isAnnotationPresent(org.springframework.web.bind.annotation.PostMapping.class)
+                        || m.isAnnotationPresent(org.springframework.web.bind.annotation.PutMapping.class)
+                        || m.isAnnotationPresent(org.springframework.web.bind.annotation.DeleteMapping.class)
+                        || m.isAnnotationPresent(org.springframework.web.bind.annotation.PatchMapping.class);
+                if (!write) {
+                    continue;
+                }
+                writeMethods++;
+                PreAuthorize pa = m.getAnnotation(PreAuthorize.class);
+                assertThat(pa).as(c.getSimpleName() + "." + m.getName()).isNotNull();
+                assertThat(pa.value()).isEqualTo("hasRole('ADMIN')");
+            }
         }
+        assertThat(writeMethods).isEqualTo(8);
     }
 
     // ===================== ADMIN 정상 CRUD =====================

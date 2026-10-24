@@ -4,7 +4,6 @@ import com.sipm.admin.dto.TimesheetResponse;
 import com.sipm.common.util.Times;
 import com.sipm.metrics.Basis;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,7 +14,6 @@ import java.time.YearMonth;
 
 @RestController
 @RequestMapping("/api/admin/timesheet")
-@PreAuthorize("hasRole('ADMIN')")
 public class AdminTimesheetController {
     private final TimesheetService timesheetService;
 

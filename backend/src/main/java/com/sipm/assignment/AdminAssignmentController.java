@@ -17,10 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/** ADMIN 전용 할당 관리 (#12~#15). */
+/** 할당 관리 (#12~#15). 조회는 로그인 사용자 모두, 등록/수정/삭제는 ADMIN만 (URL 규칙 + 메서드 @PreAuthorize). */
 @RestController
 @RequestMapping("/api/admin/projects/{id}/assignments")
-@PreAuthorize("hasRole('ADMIN')")
 public class AdminAssignmentController {
     private final AssignmentService assignmentService;
 
@@ -33,18 +32,21 @@ public class AdminAssignmentController {
         return assignmentService.list(projectId);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<AssignmentResponse> create(@PathVariable("id") Long projectId,
                                                      @Valid @RequestBody AssignmentRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(assignmentService.create(projectId, req));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{assignmentId}")
     public AssignmentResponse update(@PathVariable("id") Long projectId, @PathVariable Long assignmentId,
                                      @Valid @RequestBody AssignmentRequest req) {
         return assignmentService.update(projectId, assignmentId, req);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{assignmentId}")
     public ResponseEntity<Void> delete(@PathVariable("id") Long projectId, @PathVariable Long assignmentId) {
         assignmentService.delete(projectId, assignmentId);

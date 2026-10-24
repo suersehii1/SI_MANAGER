@@ -3,9 +3,11 @@ import { AgGridVue } from 'ag-grid-vue3'
 import { defaultColDef, localeText, GRID_THEME_CLASS, actionsRenderer, clickedAction, escapeHtml } from '@/utils/grid'
 import { formatDateTime } from '@/utils/format'
 
-defineProps({
+const props = defineProps({
   rows: { type: Array, default: () => [] },
-  loading: { type: Boolean, default: false }
+  loading: { type: Boolean, default: false },
+  // false(일반 USER)면 수정 작업 컬럼을 숨긴다
+  canEdit: { type: Boolean, default: true }
 })
 const emit = defineEmits(['edit'])
 
@@ -32,6 +34,7 @@ const columnDefs = [
     colId: 'actions',
     width: 90,
     pinned: 'right',
+    hide: !props.canEdit,
     cellRenderer: actionsRenderer([{ action: 'edit', label: '수정', type: 'primary', testid: 'user-edit' }])
   }
 ]

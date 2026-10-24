@@ -2,10 +2,13 @@
 import { onMounted, reactive, ref } from 'vue'
 import { listAdminUsers } from '@/api/admin'
 import { useLookupStore } from '@/stores/lookup'
+import { useAuthStore } from '@/stores/auth'
 import UserTable from '@/components/admin/UserTable.vue'
 import UserFormModal from '@/components/admin/UserFormModal.vue'
 
 const lookup = useLookupStore()
+// 일반 USER는 조회 전용: 등록/수정/삭제 버튼을 숨긴다 (서버도 403으로 막음)
+const auth = useAuthStore()
 const rows = ref([])
 const total = ref(0)
 const loading = ref(false)
@@ -56,7 +59,7 @@ onMounted(load)
   <div>
     <div class="page-header">
       <h2 class="page-title">사용자 관리</h2>
-      <el-button type="primary" @click="openCreate"><el-icon><Plus /></el-icon>&nbsp;사용자 등록</el-button>
+      <el-button v-if="auth.isAdmin" type="primary" data-testid="new-user-btn" @click="openCreate"><el-icon><Plus /></el-icon>&nbsp;사용자 등록</el-button>
     </div>
     <div class="card">
       <div class="toolbar">
@@ -67,7 +70,7 @@ onMounted(load)
         </el-select>
         <el-button type="primary" @click="search">검색</el-button>
       </div>
-      <UserTable :rows="rows" :loading="loading" @edit="onEdit" />
+      <UserTable :rows="rows" :loading="loading" :can-edit="auth.isAdmin" @edit="onEdit" />
       <div class="pagination-bar">
         <el-pagination
           :current-page="query.page + 1"

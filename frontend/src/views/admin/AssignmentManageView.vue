@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getAdminProject, listAssignments, deleteAssignment } from '@/api/admin'
 import { useLookupStore } from '@/stores/lookup'
+import { useAuthStore } from '@/stores/auth'
 import { formatPeriod } from '@/utils/format'
 import StatusTag from '@/components/common/StatusTag.vue'
 import AssignmentTable from '@/components/admin/AssignmentTable.vue'
@@ -12,6 +13,8 @@ import AssignmentFormModal from '@/components/admin/AssignmentFormModal.vue'
 const route = useRoute()
 const router = useRouter()
 const lookup = useLookupStore()
+// 일반 USER는 조회 전용: 등록/수정/삭제 버튼을 숨긴다 (서버도 403으로 막음)
+const auth = useAuthStore()
 
 const projectId = computed(() => Number(route.params.id))
 const project = ref(null)
@@ -67,7 +70,7 @@ onMounted(() => {
         </el-button>
         <h2 class="page-title">인원 할당 관리</h2>
       </div>
-      <el-button type="primary" :disabled="!project" data-testid="new-assignment-btn" @click="openCreate">
+      <el-button v-if="auth.isAdmin" type="primary" :disabled="!project" data-testid="new-assignment-btn" @click="openCreate">
         <el-icon><Plus /></el-icon>&nbsp;인원 추가
       </el-button>
     </div>
@@ -85,7 +88,7 @@ onMounted(() => {
       </el-descriptions>
     </div>
     <div class="card">
-      <AssignmentTable :rows="rows" :loading="loading" @edit="onEdit" @delete="onDelete" />
+      <AssignmentTable :rows="rows" :loading="loading" :can-edit="auth.isAdmin" @edit="onEdit" @delete="onDelete" />
     </div>
     <AssignmentFormModal
       v-if="project"

@@ -1,4 +1,4 @@
-// QA 체크리스트 1 (FE): 일반 USER는 /admin 라우트에 들어갈 수 없다
+// 라우터 가드: 로그인/역할 검사. Admin 콘솔은 일반 USER도 진입 가능(조회 전용)
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import { setActivePinia, createPinia } from 'pinia'
@@ -36,12 +36,21 @@ describe('authGuard', () => {
     router = newRouter()
   })
 
-  it('USER → /admin/* 는 forbidden', async () => {
+  it('USER → /admin/* 도 통과 (Admin 콘솔은 조회 전용으로 열림)', async () => {
     signIn(USER)
     for (const path of ['/admin', '/admin/projects', '/admin/users', '/admin/timesheet',
       '/admin/plan-vs-actual', '/admin/projects/1/assignments']) {
-      expect(await authGuard(router.resolve(path))).toEqual({ name: 'forbidden' })
+      expect(await authGuard(router.resolve(path))).toBe(true)
     }
+  })
+
+  it('meta.roles가 있는 경로는 역할이 없으면 forbidden (가드의 역할 검사 기능)', async () => {
+    router.addRoute({ path: '/admin-only', name: 'admin-only', component: { template: '<div/>' },
+      meta: { requiresAuth: true, roles: ['ROLE_ADMIN'] } })
+    signIn(USER)
+    expect(await authGuard(router.resolve('/admin-only'))).toEqual({ name: 'forbidden' })
+    signIn(ADMIN)
+    expect(await authGuard(router.resolve('/admin-only'))).toBe(true)
   })
 
   it('ADMIN → /admin/* 통과', async () => {
@@ -66,10 +75,10 @@ describe('authGuard', () => {
     })
   })
 
-  it('토큰만 있으면 /auth/me로 사용자 조회 후 역할 판정', async () => {
+  it('토큰만 있으면 /auth/me로 사용자 조회 후 통과', async () => {
     useAuthStore().token = 'token'
     fetchMe.mockResolvedValue(USER)
-    expect(await authGuard(router.resolve('/admin/users'))).toEqual({ name: 'forbidden' })
+    expect(await authGuard(router.resolve('/admin/users'))).toBe(true)
     expect(fetchMe).toHaveBeenCalledTimes(1)
   })
 
@@ -87,10 +96,10 @@ describe('authGuard', () => {
     expect(await authGuard(router.resolve('/forbidden'))).toBe(true)
   })
 
-  it('실제 네비게이션: USER가 /admin/users 로 이동하면 forbidden 화면', async () => {
+  it('실제 네비게이션: USER가 /admin/users 로 이동하면 사용자 화면(조회 전용)', async () => {
     signIn(USER)
     await router.push('/admin/users')
-    expect(router.currentRoute.value.name).toBe('forbidden')
+    expect(router.currentRoute.value.name).toBe('admin-users')
   })
 })
 
@@ -106,9 +115,9 @@ describe('AppSidebar', () => {
     return mountWith(AppSidebar, { pinia, router })
   }
 
-  it('Admin 메뉴는 ADMIN에게만 보인다', async () => {
+  it('Admin 메뉴는 모든 사용자에게 보인다 (일반 USER는 조회 전용)', async () => {
     const asUser = await mountSidebar(USER)
-    expect(asUser.find('[data-testid="menu-admin"]').exists()).toBe(false)
+    expect(asUser.find('[data-testid="menu-admin"]').exists()).toBe(true)
     expect(asUser.find('[data-testid="menu-wbs"]').exists()).toBe(true)
     asUser.unmount()
 

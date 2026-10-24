@@ -3,7 +3,6 @@ package com.sipm.admin;
 import com.sipm.admin.dto.PlanActualResponse;
 import com.sipm.common.util.Times;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,7 +13,6 @@ import java.time.YearMonth;
 
 @RestController
 @RequestMapping("/api/admin/plan-vs-actual")
-@PreAuthorize("hasRole('ADMIN')")
 public class AdminPlanActualController {
     private final PlanActualService planActualService;
 

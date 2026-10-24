@@ -41,8 +41,8 @@ const theme = computed({
         <el-icon><Operation /></el-icon>
         <span>WBS</span>
       </el-menu-item>
-      <!-- Admin 메뉴는 ADMIN 사용자에게만 표시 (라우트 가드가 별도로 차단) -->
-      <el-menu-item v-if="auth.isAdmin" index="/admin" data-testid="menu-admin">
+      <!-- Admin 콘솔은 모든 사용자에게 표시 (일반 USER는 조회 전용) -->
+      <el-menu-item index="/admin" data-testid="menu-admin">
         <el-icon><Setting /></el-icon>
         <span>Admin 콘솔</span>
       </el-menu-item>

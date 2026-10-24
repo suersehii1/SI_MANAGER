@@ -55,7 +55,11 @@ class SmokeIntegrationTest {
     @Test
     void loginAndRoleChecks() throws Exception {
         String user = token("user", "user1234");
+        // 일반 USER: Admin 콘솔 조회는 가능, 등록은 403
         mvc.perform(get("/api/admin/projects").header("Authorization", "Bearer " + user))
+                .andExpect(status().isOk());
+        mvc.perform(post("/api/admin/projects").header("Authorization", "Bearer " + user)
+                        .contentType(MediaType.APPLICATION_JSON).content("{}"))
                 .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value("FORBIDDEN"));
         mvc.perform(get("/api/admin/projects")).andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value("UNAUTHORIZED"));
