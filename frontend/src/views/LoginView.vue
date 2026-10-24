@@ -45,7 +45,7 @@ async function submit() {
         </el-form-item>
         <el-button type="primary" native-type="submit" :loading="loading" style="width: 100%" data-testid="login-submit">로그인</el-button>
       </el-form>
-      <p class="text-muted login__hint">시드 계정: admin / admin1234, user / user1234</p>
+      <p class="text-muted login__hint">관리자 계정: admin / admin1234</p>
     </el-card>
   </div>
 </template>

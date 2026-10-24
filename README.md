@@ -23,16 +23,14 @@ docker compose down -v     # 중지 + DB/업로드 볼륨 삭제 (시드 상태�
 
 볼륨: `pgdata`(DB), `uploads`(첨부파일, 컨테이너 `/data/uploads`).
 
-## 시드 계정
+## 초기 계정 / 데이터
 
 | 아이디 | 비밀번호 | 권한 |
 |---|---|---|
 | admin | admin1234 | ROLE_ADMIN, ROLE_USER |
-| user | user1234 | ROLE_USER |
-| kim | user1234 | ROLE_USER (SI-2026-001, SI-2026-002 멤버) |
-| lee | user1234 | ROLE_USER (SI-2026-001 멤버) |
 
-시드 프로젝트 2개, 할당 3건, 이슈 3건, SI-2026-001의 WBS 10개 항목이 들어 있다. 값은 specs.md §3.6과 specs-wbs.md §W3.1의 worked example과 같다(기준일 `asOf=2026-03-15`).
+DB에는 권한 코드(ROLE_ADMIN, ROLE_USER)와 admin 계정만 들어 있다. 사용자·프로젝트·할당·이슈·WBS는 화면에서 직접 등록한다.
+(예전 화면 확인용 샘플 데이터는 `V5__remove_sample_data.sql`에서 삭제. 통합 테스트용 샘플 데이터는 `backend/src/test/resources/db/testdata/`에만 있다.)
 
 ```bash
 # 예: 로그인 후 계획 vs 실제 조회
