@@ -30,7 +30,7 @@ function logout() {
   width: 100%;
 }
 .app-header__brand {
-  color: #fff;
+  color: var(--app-header-text);
   font-size: 18px;
   font-weight: 600;
   text-decoration: none;

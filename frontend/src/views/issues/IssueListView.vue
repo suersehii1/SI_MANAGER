@@ -107,14 +107,15 @@ async function onDelete(row) {
 </script>
 
 <template>
-  <div>
+  <!-- 화면 높이에 딱 맞춤: 제목·검색 조건·페이지 이동은 고정, 표는 남은 높이 전체 (행이 많으면 표 안에서 스크롤) -->
+  <div class="issues">
     <div class="page-header">
       <h2 class="page-title">이슈 관리</h2>
       <el-button type="primary" data-testid="new-issue-btn" @click="openCreate">
         <el-icon><Plus /></el-icon>&nbsp;신규 이슈
       </el-button>
     </div>
-    <div class="card">
+    <div class="card issues__card">
       <IssueFilterBar
         :filters="issueStore.filters"
         :projects="lookup.projects"
@@ -123,6 +124,8 @@ async function onDelete(row) {
         @reset="onSearch"
       />
       <IssueTable
+        class="issues__table"
+        height="100%"
         :rows="issueStore.items"
         :sort="issueStore.sort"
         :loading="issueStore.loading"
@@ -163,3 +166,25 @@ async function onDelete(row) {
     />
   </div>
 </template>
+
+<style scoped>
+/* 화면 높이에 딱 맞춤 (본문 영역 높이 = 100%) */
+.issues {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 420px;
+}
+.issues__card {
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
+/* 표만 남은 높이를 채우고, 검색 조건·페이지 이동은 원래 크기 */
+.issues__table {
+  flex: 1;
+  min-height: 0;
+}
+</style>

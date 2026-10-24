@@ -1,3 +1,17 @@
+/* 상단 헤더 색상 (스킨별)
+   - 낮(해): 흰 화면과 구분되면서 부드러운 청회색. 흰 글자 대비 5.1:1 (WCAG AA)
+   - 밤(달): 어두운 바탕보다 살짝 밝은 밤하늘 남색 → 눈부시지 않게 구분 */
+:root {
+  --app-header-bg: #4a6fa5;
+  --app-header-text: #ffffff;
+  --app-header-border: transparent;
+}
+html.dark {
+  --app-header-bg: #1e2a3a;
+  --app-header-text: #e5eaf3;
+  --app-header-border: #2c3a4d;
+}
+
 html, body, #app {
   margin: 0;
   height: 100%;

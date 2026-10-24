@@ -14,6 +14,10 @@ import { wbsNameCellRenderer, delayedRenderer } from './wbsCellRenderers'
  * - cellValueChanged → 행 전체로 PUT 요청 → 성공/실패 모두 트리 재조회(실패 시 값이 원복됨) + 서버 메시지 표시.
  */
 const emit = defineEmits(['open-edit'])
+// 표 높이 (기본 560px, 부모 영역을 꽉 채우려면 '100%' → 행이 많으면 표 안에서 스크롤)
+const props = defineProps({
+  height: { type: String, default: '560px' }
+})
 const store = useWbsStore()
 
 // AG Grid가 편집 시 data 객체를 직접 수정하므로 스토어 객체를 복사해서 넘긴다.
@@ -152,10 +156,10 @@ const rowClassRules = {
 </script>
 
 <template>
-  <div data-testid="wbs-grid">
+  <div data-testid="wbs-grid" :style="{ height: props.height }">
     <ag-grid-vue
       :class="GRID_THEME_CLASS"
-      style="width: 100%; height: 560px"
+      style="width: 100%; height: 100%"
       :row-data="rowData"
       :column-defs="columnDefs"
       :default-col-def="defaultColDef"

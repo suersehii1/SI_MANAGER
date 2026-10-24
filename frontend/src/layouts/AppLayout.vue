@@ -24,8 +24,10 @@ import AppSidebar from '@/components/common/AppSidebar.vue'
   height: 100%;
 }
 .app-layout__header {
-  background: #1f2d3d;
-  color: #fff;
+  /* 스킨(낮/밤)에 따라 바뀌는 색 — styles.css의 --app-header-* 변수 */
+  background: var(--app-header-bg);
+  color: var(--app-header-text);
+  border-bottom: 1px solid var(--app-header-border);
   display: flex;
   align-items: center;
 }

@@ -18,7 +18,9 @@ import { useAuthStore } from '@/stores/auth'
 const props = defineProps({
   rows: { type: Array, default: () => [] },
   sort: { type: String, default: 'createdAt,desc' },
-  loading: { type: Boolean, default: false }
+  loading: { type: Boolean, default: false },
+  // 표 높이 (기본 520px, 부모 영역을 꽉 채우려면 '100%' → 행이 많으면 표 안에서 스크롤)
+  height: { type: String, default: '520px' }
 })
 const emit = defineEmits(['sort-change', 'row-click', 'edit', 'delete'])
 
@@ -86,10 +88,10 @@ function onRowClicked(event) {
 </script>
 
 <template>
-  <div data-testid="issue-table">
+  <div data-testid="issue-table" :style="{ height: props.height }">
     <ag-grid-vue
       :class="GRID_THEME_CLASS"
-      style="width: 100%; height: 520px"
+      style="width: 100%; height: 100%"
       :row-data="rows"
       :column-defs="columnDefs"
       :default-col-def="defaultColDef"

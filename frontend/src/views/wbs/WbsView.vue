@@ -97,11 +97,12 @@ async function onDelete() {
 </script>
 
 <template>
-  <div v-loading="store.loading">
+  <!-- 화면 높이에 딱 맞춤: 제목·툴바·안내는 고정, Grid/Gantt는 남은 높이 전체 (항목이 많으면 그 안에서 스크롤) -->
+  <div v-loading="store.loading" class="wbs">
     <div class="page-header">
       <h2 class="page-title">WBS 관리</h2>
     </div>
-    <div class="card">
+    <div class="card wbs__card">
       <WbsToolbar
         v-model:view="view"
         :projects="lookup.projects"
@@ -123,8 +124,8 @@ async function onDelete() {
         <p class="text-muted">
           하위 항목이 있는 행(굵게)의 기간·진척률·상태는 하위 항목에서 자동 집계됩니다. 셀을 더블클릭해 바로 수정할 수 있습니다.
         </p>
-        <WbsGrid v-if="view === 'grid'" @open-edit="openEdit" />
-        <WbsGantt v-else />
+        <WbsGrid v-if="view === 'grid'" class="wbs__body" height="100%" @open-edit="openEdit" />
+        <WbsGantt v-else class="wbs__body" height="100%" />
       </template>
     </div>
     <WbsFormModal
@@ -136,3 +137,25 @@ async function onDelete() {
     />
   </div>
 </template>
+
+<style scoped>
+/* 화면 높이에 딱 맞춤 (본문 영역 높이 = 100%) */
+.wbs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 420px;
+}
+.wbs__card {
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
+/* Grid/Gantt만 남은 높이를 채운다 */
+.wbs__body {
+  flex: 1;
+  min-height: 0;
+}
+</style>
