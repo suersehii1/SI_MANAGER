@@ -13,7 +13,7 @@ function logout() {
 
 <template>
   <div class="app-header">
-    <router-link to="/dashboard" class="app-header__brand">SI Project Manager</router-link>
+    <router-link to="/dashboard" class="app-header__brand">전사 Project 관리 시스템</router-link>
     <div class="app-header__user">
       <span data-testid="header-username">{{ auth.user?.name }} ({{ auth.user?.username }})</span>
       <el-tag v-if="auth.isAdmin" size="small" type="danger" effect="dark">ADMIN</el-tag>
@@ -34,6 +34,7 @@ function logout() {
   font-size: 18px;
   font-weight: 600;
   text-decoration: none;
+  white-space: nowrap; /* 시스템 이름이 길어도 한 줄로 표시 */
 }
 .app-header__user {
   display: flex;

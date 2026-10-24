@@ -35,7 +35,7 @@ async function submit() {
 <template>
   <div class="login">
     <el-card class="login__card">
-      <h2 class="login__title">SI Project Manager</h2>
+      <h2 class="login__title">전사 Project 관리 시스템</h2>
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top" data-testid="login-form" @submit.prevent="submit">
         <el-form-item label="아이디" prop="username">
           <el-input v-model="form.username" autocomplete="username" data-testid="login-username" />
