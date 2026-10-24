@@ -114,3 +114,9 @@ html.dark .ag-theme-quartz {
   --ag-modal-overlay-background-color: rgba(0, 0, 0, 0.4);
   color-scheme: dark;
 }
+
+/* vue-echarts 내부 요소는 flex 아이템이라 기본값(min-height: auto) 때문에 캔버스보다 작아지지 못한다.
+   그러면 차트 영역이 줄어들어도 자동 크기 조정(autoresize)이 일어나지 않아 차트가 영역 밖으로 넘친다. */
+.vue-echarts-inner {
+  min-height: 0;
+}

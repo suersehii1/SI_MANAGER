@@ -172,13 +172,20 @@ onMounted(() => {
 .pva__chart-body {
   flex: 1;
   min-height: 0;
+  overflow: hidden; /* 차트가 크기 조정 전 잠깐이라도 버튼 줄을 덮지 않도록 */
 }
+/* 차트 영역 맨 아래 가운데 접기 버튼 줄 (얇은 구분선 위) */
 .pva__toggle {
   flex: none;
   display: flex;
   justify-content: center;
   gap: 8px;
-  padding-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid var(--el-border-color-lighter);
+}
+.pva__chart.is-collapsed .pva__toggle {
+  border-top: none;
+  padding-top: 0;
 }
 .pva__toggle .el-button + .el-button {
   margin-left: 0;
