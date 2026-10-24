@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { authGuard } from './guards'
+import { reloadOnChunkError } from './chunkReload'
 
 export const routes = [
   { path: '/login', name: 'login', component: () => import('@/views/LoginView.vue'), meta: { public: true } },
@@ -64,5 +65,7 @@ const router = createRouter({
 })
 
 router.beforeEach(authGuard)
+// 재배포 후 예전 화면 파일을 못 불러오면 이동하려던 주소로 한 번 새로고침 (chunkReload.js 참고)
+router.onError((error, to) => reloadOnChunkError(error, to))
 
 export default router
