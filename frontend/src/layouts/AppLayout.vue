@@ -8,7 +8,7 @@ import AppSidebar from '@/components/common/AppSidebar.vue'
     <el-header class="app-layout__header" height="56px">
       <AppHeader />
     </el-header>
-    <el-container>
+    <el-container class="app-layout__body">
       <el-aside width="200px" class="app-layout__aside">
         <AppSidebar />
       </el-aside>
@@ -34,7 +34,14 @@ import AppSidebar from '@/components/common/AppSidebar.vue'
   background: var(--el-bg-color);
   border-right: 1px solid var(--el-border-color-light);
 }
+/* 헤더 아래 영역을 화면 높이에 고정: 내용이 길어도 사이드바(하단 스킨 선택 포함)는 그대로,
+   본문(el-main)만 안에서 스크롤된다 */
+.app-layout__body {
+  min-height: 0;
+  overflow: hidden;
+}
 .app-layout__main {
   padding: 20px;
+  overflow: auto;
 }
 </style>

@@ -3,8 +3,10 @@ import { AgGridVue } from 'ag-grid-vue3'
 import { defaultColDef, localeText, GRID_THEME_CLASS } from '@/utils/grid'
 import { formatMM } from '@/utils/format'
 
+// height: 표 높이 (기본 360px, 부모 영역을 꽉 채우려면 '100%')
 defineProps({
-  series: { type: Array, default: () => [] }
+  series: { type: Array, default: () => [] },
+  height: { type: String, default: '360px' }
 })
 
 // 차이(음수 = 계획 대비 실제 부족)는 빨간색
@@ -25,10 +27,10 @@ const columnDefs = [
 </script>
 
 <template>
-  <div data-testid="plan-actual-table">
+  <div data-testid="plan-actual-table" :style="{ height }">
     <ag-grid-vue
       :class="GRID_THEME_CLASS"
-      style="width: 100%; height: 360px"
+      style="width: 100%; height: 100%"
       :row-data="series"
       :column-defs="columnDefs"
       :default-col-def="defaultColDef"

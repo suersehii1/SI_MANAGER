@@ -3,8 +3,10 @@ import { computed } from 'vue'
 import VChart from 'vue-echarts'
 
 // 막대: 월별 계획/실제 MM, 선: 누계 계획/실제 MM. null(미래 월 실제값)은 선이 끊긴다.
+// height: 차트 높이 (기본 360px, 부모 영역을 꽉 채우려면 '100%')
 const props = defineProps({
-  series: { type: Array, default: () => [] }
+  series: { type: Array, default: () => [] },
+  height: { type: String, default: '360px' }
 })
 
 const option = computed(() => {
@@ -30,7 +32,7 @@ const option = computed(() => {
 </script>
 
 <template>
-  <div data-testid="plan-actual-chart">
-    <v-chart :option="option" autoresize style="height: 360px" />
+  <div data-testid="plan-actual-chart" :style="{ height }">
+    <v-chart :option="option" autoresize style="height: 100%" />
   </div>
 </template>
