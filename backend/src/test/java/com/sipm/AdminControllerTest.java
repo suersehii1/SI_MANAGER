@@ -253,6 +253,40 @@ class AdminControllerTest extends ApiTestSupport {
     }
 
     @Test
+    void jobTitleMustBeOneOfAllowedValues() throws Exception {
+        String admin = admin();
+        // 허용 목록(사원~기타)은 모두 등록 가능
+        int i = 0;
+        for (String title : List.of("사원", "선임", "책임", "수석", "임원", "대표", "부대표", "기타")) {
+            mvc.perform(postJson(admin, "/api/admin/users", Map.of("username", "jt" + (i++), "password", "pass1234",
+                            "name", "직급테스트", "jobTitle", title, "roles", List.of("ROLE_USER"))))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.jobTitle").value(title));
+        }
+        // 목록 밖의 값은 등록 불가
+        mvc.perform(postJson(admin, "/api/admin/users", Map.of("username", "jtx", "password", "pass1234",
+                        "name", "직급테스트", "jobTitle", "과장", "roles", List.of("ROLE_USER"))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors[0].field").value("jobTitle"))
+                .andExpect(jsonPath("$.fieldErrors[0].code").value("INVALID_JOB_TITLE"));
+
+        // 기존 사용자(kim, 직급 '과장')는 직급을 그대로 두면 수정 가능, 목록 밖 다른 값으로는 변경 불가
+        long kimId = userId("kim");
+        mvc.perform(putJson(admin, "/api/admin/users/" + kimId,
+                        Map.of("name", "김철수", "jobTitle", "과장", "roles", List.of("ROLE_USER"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.jobTitle").value("과장"));
+        mvc.perform(putJson(admin, "/api/admin/users/" + kimId,
+                        Map.of("name", "김철수", "jobTitle", "부장", "roles", List.of("ROLE_USER"))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors[0].code").value("INVALID_JOB_TITLE"));
+        mvc.perform(putJson(admin, "/api/admin/users/" + kimId,
+                        Map.of("name", "김철수", "jobTitle", "책임", "roles", List.of("ROLE_USER"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.jobTitle").value("책임"));
+    }
+
+    @Test
     void adminCannotDisableOrDemoteSelf() throws Exception {
         String admin = admin();
         long adminId = json(mvc.perform(getAs(admin, "/api/auth/me"))).get("id").asLong();

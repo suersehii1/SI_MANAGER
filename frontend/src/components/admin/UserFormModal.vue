@@ -2,7 +2,7 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { createUser, updateUser } from '@/api/admin'
-import { ROLES } from '@/utils/constants'
+import { ROLES, JOB_TITLES } from '@/utils/constants'
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -103,8 +103,11 @@ async function submit() {
       <el-form-item label="이메일" prop="email" :error="serverErrors.email">
         <el-input v-model="form.email" maxlength="200" />
       </el-form-item>
-      <el-form-item label="직급">
-        <el-input v-model="form.jobTitle" maxlength="50" />
+      <!-- 직급은 정해진 목록에서만 선택 (기존 사용자의 목록 밖 값은 그대로 표시되며 바꾸지 않으면 유지) -->
+      <el-form-item label="직급" :error="serverErrors.jobTitle">
+        <el-select v-model="form.jobTitle" placeholder="직급 선택" clearable style="width: 100%" data-testid="user-form-job-title">
+          <el-option v-for="t in JOB_TITLES" :key="t" :label="t" :value="t" />
+        </el-select>
       </el-form-item>
       <el-form-item label="권한" prop="roles" :error="serverErrors.roles">
         <el-checkbox-group v-model="form.roles">

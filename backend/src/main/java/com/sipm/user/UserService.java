@@ -23,6 +23,9 @@ import java.util.Set;
 
 @Service
 public class UserService {
+    /** 선택 가능한 직급 목록 (프론트 utils/constants.js JOB_TITLES와 동일하게 유지) */
+    public static final List<String> JOB_TITLES = List.of("사원", "선임", "책임", "수석", "임원", "대표", "부대표", "기타");
+
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -75,7 +78,7 @@ public class UserService {
         }
         User u = new User(req.username(), passwordEncoder.encode(req.password()), req.name().trim());
         u.setEmail(blankToNull(req.email()));
-        u.setJobTitle(blankToNull(req.jobTitle()));
+        u.setJobTitle(checkJobTitle(blankToNull(req.jobTitle()), null));
         u.setEnabled(req.enabled() == null || req.enabled());
         u.setRoles(resolveRoles(req.roles()));
         return UserResponse.from(userRepository.saveAndFlush(u));
@@ -101,10 +104,22 @@ public class UserService {
         }
         u.setName(req.name().trim());
         u.setEmail(blankToNull(req.email()));
-        u.setJobTitle(blankToNull(req.jobTitle()));
+        u.setJobTitle(checkJobTitle(blankToNull(req.jobTitle()), u.getJobTitle()));
         u.setEnabled(enabled);
         u.setRoles(resolveRoles(req.roles()));
         return UserResponse.from(userRepository.saveAndFlush(u));
+    }
+
+    /**
+     * 직급은 정해진 목록 중 하나만 허용한다 (비워두는 것은 허용).
+     * 단, 목록이 생기기 전에 등록된 기존 값(예: 과장, 대리)은 수정 시 바꾸지 않으면 그대로 둔다.
+     */
+    private static String checkJobTitle(String jobTitle, String currentJobTitle) {
+        if (jobTitle == null || JOB_TITLES.contains(jobTitle) || jobTitle.equals(currentJobTitle)) {
+            return jobTitle;
+        }
+        throw BusinessException.validation("jobTitle", "INVALID_JOB_TITLE",
+                "직급은 " + String.join("/", JOB_TITLES) + " 중 하나여야 합니다.", jobTitle);
     }
 
     private Set<Role> resolveRoles(List<String> names) {

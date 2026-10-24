@@ -36,6 +36,9 @@ export const WBS_STATUS = {
 
 export const ROLES = ['ROLE_ADMIN', 'ROLE_USER']
 
+// 사용자 직급 선택 목록 (백엔드 UserService.JOB_TITLES와 동일하게 유지)
+export const JOB_TITLES = ['사원', '선임', '책임', '수석', '임원', '대표', '부대표', '기타']
+
 export function toOptions(map) {
   return Object.keys(map).map((value) => ({ value, label: map[value].label }))
 }
