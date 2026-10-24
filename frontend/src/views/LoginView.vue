@@ -3,6 +3,7 @@ import { reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useAuthStore } from '@/stores/auth'
+import aigentumLogo from '@/assets/aigentum-logo.png'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -35,6 +36,10 @@ async function submit() {
 <template>
   <div class="login">
     <el-card class="login__card">
+      <!-- 회사 로고: 원본(174×84)보다 크게 늘리면 흐려지므로 원본 크기로 표시 -->
+      <div class="login__brand">
+        <img :src="aigentumLogo" alt="(주)에이젠텀 Aigentum" class="login__logo" width="174" height="84" data-testid="login-logo" />
+      </div>
       <h2 class="login__title">전사 Project 관리 시스템</h2>
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top" data-testid="login-form" @submit.prevent="submit">
         <el-form-item label="아이디" prop="username">
@@ -60,9 +65,25 @@ async function submit() {
 .login__card {
   width: 360px;
 }
+/* 로고 아래 얇은 구분선 → 그 아래 시스템 이름 */
+.login__brand {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--el-border-color-lighter);
+}
+.login__logo {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
 .login__title {
-  margin-top: 0;
+  margin: 0 0 16px;
   text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
 }
 .login__hint {
   margin-bottom: 0;
