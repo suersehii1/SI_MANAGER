@@ -43,6 +43,9 @@ const pinnedBottom = computed(() => {
   return [row]
 })
 
+// 사용자 행의 과다 할당(월합 1.00 초과) 월인지
+const isOver = (p, month) => p.data.kind === 'user' && !!p.data.over?.has(month)
+
 const columnDefs = computed(() => {
   const months = props.data?.months || []
   return [
@@ -60,8 +63,12 @@ const columnDefs = computed(() => {
       width: 95,
       type: 'numericColumn',
       valueFormatter: (p) => formatMM(p.value),
-      // 사용자 행에서 과다 할당 월이면 빨간색
-      cellClassRules: { 'mm-over': (p) => p.data.kind === 'user' && p.data.over?.has(m) }
+      cellClassRules: {
+        // 사용자 행에서 과다 할당 월이면 빨간색 (파란색보다 우선)
+        'mm-over': (p) => isOver(p, m),
+        // 실제 월별 값이 0.00이 아니면 파란색
+        'mm-nonzero': (p) => !isOver(p, m) && Number(p.value || 0) !== 0
+      }
     })),
     { headerName: '합계', field: 'total', width: 100, pinned: 'right', type: 'numericColumn', valueFormatter: (p) => formatMM(p.value) }
   ]

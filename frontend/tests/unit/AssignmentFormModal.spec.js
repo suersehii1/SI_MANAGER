@@ -93,3 +93,45 @@ describe('AssignmentFormModal 날짜 검증', () => {
     expect(document.body.textContent).toContain('서버: 기간 밖')
   })
 })
+
+describe('AssignmentFormModal 역할 선택', () => {
+  let wrapper
+  beforeEach(() => {
+    vi.clearAllMocks()
+    document.body.innerHTML = ''
+  })
+  afterEach(() => wrapper?.unmount())
+
+  // 역할 드롭다운을 열고 옵션 라벨 목록을 돌려준다 (사용자 드롭다운 옵션은 제외)
+  async function openRoleOptions() {
+    document.body.querySelector('[data-testid="assignment-role"]').querySelector('.el-select__wrapper, input').click()
+    await settle()
+    return [...document.body.querySelectorAll('.el-select-dropdown__item')].filter((el) => !el.textContent.includes('이영희'))
+  }
+
+  it('역할 선택 목록은 PM/개발자/데이터 엔지니어/디자이너/퍼블리셔', async () => {
+    wrapper = mountForm(null)
+    await settle()
+    const labels = (await openRoleOptions()).map((el) => el.textContent.trim())
+    expect(labels).toEqual(['PM', '개발자', '데이터 엔지니어', '디자이너', '퍼블리셔'])
+  })
+
+  it('선택한 역할로 저장한다', async () => {
+    updateAssignment.mockResolvedValue({ id: 2 })
+    wrapper = mountForm(assignment({}))
+    await settle()
+    const option = (await openRoleOptions()).find((el) => el.textContent.trim() === '데이터 엔지니어')
+    option.click()
+    await settle()
+    await click('[data-testid="assignment-form-submit"]')
+    expect(updateAssignment).toHaveBeenCalledWith(1, 2, expect.objectContaining({ roleInProject: '데이터 엔지니어' }))
+  })
+
+  it('기존 할당의 목록 밖 역할(DEVELOPER)은 바꾸지 않으면 그대로 저장된다', async () => {
+    updateAssignment.mockResolvedValue({ id: 2 })
+    wrapper = mountForm(assignment({}))
+    await settle()
+    await click('[data-testid="assignment-form-submit"]')
+    expect(updateAssignment).toHaveBeenCalledWith(1, 2, expect.objectContaining({ roleInProject: 'DEVELOPER' }))
+  })
+})

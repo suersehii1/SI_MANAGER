@@ -2,6 +2,7 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { createAssignment, updateAssignment } from '@/api/admin'
+import { PROJECT_ROLES } from '@/utils/constants'
 
 /**
  * 인원 할당 등록/수정 폼 (투입/철수 일자 관리).
@@ -22,7 +23,7 @@ const serverErrors = reactive({})
 const isEdit = computed(() => !!props.assignment)
 
 const emptyForm = () => ({
-  userId: null, roleInProject: 'DEVELOPER', allocationRate: 1,
+  userId: null, roleInProject: '개발자', allocationRate: 1,
   plannedStart: props.project?.plannedStartDate || null,
   plannedEnd: props.project?.plannedEndDate || null,
   actualStart: null, actualEnd: null, note: ''
@@ -137,8 +138,11 @@ async function submit() {
           <el-option v-for="u in users" :key="u.id" :label="`${u.name} (${u.username})`" :value="u.id" />
         </el-select>
       </el-form-item>
-      <el-form-item label="역할">
-        <el-input v-model="form.roleInProject" maxlength="50" />
+      <!-- 역할은 정해진 목록에서 선택 (기존 할당의 목록 밖 값은 그대로 표시되며 바꾸지 않으면 유지) -->
+      <el-form-item label="역할" :error="serverErrors.roleInProject">
+        <el-select v-model="form.roleInProject" placeholder="역할 선택" style="width: 100%" data-testid="assignment-role">
+          <el-option v-for="r in PROJECT_ROLES" :key="r" :label="r" :value="r" />
+        </el-select>
       </el-form-item>
       <el-form-item label="투입률" :error="serverErrors.allocationRate">
         <el-input-number v-model="form.allocationRate" :min="0.01" :max="1" :step="0.05" :precision="2" />

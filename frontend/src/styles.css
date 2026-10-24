@@ -75,6 +75,11 @@ html, body, #app {
   font-weight: 600;
 }
 
+/* 타임시트: 0.00이 아닌 월별 값 */
+.mm-nonzero {
+  color: #409eff;
+}
+
 .row-rolled-up {
   font-weight: 600;
   background: #f7f9fc !important;
