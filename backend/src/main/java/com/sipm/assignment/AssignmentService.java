@@ -21,7 +21,8 @@ import java.util.List;
 
 /**
  * 프로젝트 인원 할당(투입/철수일 관리). 규칙(specs §5.2):
- * 할당 계획 기간 ⊆ 프로젝트 계획 기간, 동일 프로젝트 중복 할당 금지, 비활성 사용자 할당 금지.
+ * 할당 계획 기간 ⊆ 프로젝트 계획 기간, 같은 사람의 계획 기간 겹침 할당 금지(겹치지 않으면 재할당 허용),
+ * 비활성 사용자 할당 금지.
  * 실제 기간(actual)은 프로젝트 기간 제약 없음(지연/조기 투입 허용).
  */
 @Service
@@ -53,9 +54,7 @@ public class AssignmentService {
         Project project = projectService.get(projectId);
         User user = userService.getEnabled(req.getUserId());
         checkWithinProjectPeriod(project, req);
-        if (assignmentRepository.existsByProjectIdAndUserId(projectId, user.getId())) {
-            throw new BusinessException(ErrorCode.DUPLICATE_ASSIGNMENT);
-        }
+        checkNoOverlap(projectId, user, req, null);
         ProjectAssignment a = new ProjectAssignment();
         a.setProject(project);
         a.setUser(user);
@@ -73,6 +72,8 @@ public class AssignmentService {
             throw BusinessException.validation("userId", "IMMUTABLE", "할당된 사용자는 변경할 수 없습니다.", req.getUserId());
         }
         checkWithinProjectPeriod(project, req);
+        // 기간을 바꿔서 같은 사람의 다른 할당과 겹치게 되는 것도 막는다 (자기 자신은 제외)
+        checkNoOverlap(projectId, a.getUser(), req, a.getId());
         apply(a, req);
         assignmentRepository.saveAndFlush(a);
         return AssignmentResponse.from(a, Times.today());
@@ -92,6 +93,25 @@ public class AssignmentService {
             throw BusinessException.notFound("할당");
         }
         return a;
+    }
+
+    /**
+     * 같은 프로젝트에 같은 사람이 계획 투입 기간이 겹치게 할당되는 것을 막는다 (409 DUPLICATE_ASSIGNMENT).
+     * - 같은 사람: 같은 사용자 ID, 또는 이메일이 같은 다른 계정 (이름은 동명이인이 있으므로 보지 않음)
+     * - 겹침: 기존 계획 시작 ≤ 새 계획 종료 이고 기존 계획 종료 ≥ 새 계획 시작 (경계일이 같아도 겹침)
+     * - 기간이 겹치지 않으면 같은 사람을 다시 할당할 수 있다 (예: 1~3월 투입, 철수 후 6~8월 재투입)
+     */
+    private void checkNoOverlap(Long projectId, User user, AssignmentRequest req, Long excludeId) {
+        String email = user.getEmail() == null ? "" : user.getEmail().trim();
+        List<ProjectAssignment> overlaps = assignmentRepository.findOverlapping(projectId, user.getId(), email,
+                req.getPlannedStart(), req.getPlannedEnd(), excludeId == null ? -1L : excludeId);
+        if (!overlaps.isEmpty()) {
+            ProjectAssignment o = overlaps.get(0);
+            throw new BusinessException(ErrorCode.DUPLICATE_ASSIGNMENT,
+                    "같은 사람(" + o.getUser().getName() + ", " + o.getUser().getUsername() + ")이 이미 이 프로젝트에 "
+                            + o.getPlannedStart() + " ~ " + o.getPlannedEnd()
+                            + " 기간으로 할당되어 있습니다. 투입 기간이 겹치지 않게 입력하세요.");
+        }
     }
 
     /** 할당 계획 기간이 프로젝트 계획 기간(경계일 포함) 안에 있는지 검사. 위반 필드별 fieldError. */

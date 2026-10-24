@@ -25,7 +25,7 @@ public enum ErrorCode {
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP 메서드입니다."),
     DUPLICATE_USERNAME(HttpStatus.CONFLICT, "이미 사용 중인 아이디입니다."),
     DUPLICATE_PROJECT_CODE(HttpStatus.CONFLICT, "이미 사용 중인 프로젝트 코드입니다."),
-    DUPLICATE_ASSIGNMENT(HttpStatus.CONFLICT, "이미 해당 프로젝트에 할당된 사용자입니다."),
+    DUPLICATE_ASSIGNMENT(HttpStatus.CONFLICT, "같은 사람이 이 프로젝트에 투입 기간이 겹치게 할당되어 있습니다."),
     PROJECT_PERIOD_CONFLICT(HttpStatus.CONFLICT, "기존 할당이 새 프로젝트 계획 기간을 벗어납니다."),
     DATA_INTEGRITY_VIOLATION(HttpStatus.CONFLICT, "데이터 제약 조건을 위반했습니다."),
     PAYLOAD_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, "파일 크기는 2MB를 초과할 수 없습니다."),

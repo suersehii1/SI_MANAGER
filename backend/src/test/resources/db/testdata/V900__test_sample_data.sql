@@ -2,6 +2,7 @@
 -- 운영 마이그레이션 V5에서 샘플 데이터를 지웠으므로, 통합 테스트가 쓰는 샘플 데이터를 여기서 다시 넣는다.
 -- (roles, admin 계정은 운영 마이그레이션에 남아 있으므로 제외)
 -- application-test.yml의 spring.flyway.locations에 classpath:db/testdata 로 등록되어 있다.
+-- 버전을 V900으로 크게 둔 이유: 운영 마이그레이션(V6, V7, ...)과 번호가 겹치지 않도록.
 
 -- ===== users (BCrypt cost 10) =====
 -- user1234

@@ -192,7 +192,7 @@ class AdminControllerTest extends ApiTestSupport {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(3));
 
-        // 같은 사용자 중복 할당 → 409
+        // 같은 사용자를 같은 기간으로 다시 할당 → 기간이 겹치므로 409
         mvc.perform(postJson(admin, "/api/admin/projects/" + p1 + "/assignments", body))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value("DUPLICATE_ASSIGNMENT"));
@@ -572,6 +572,61 @@ class AdminControllerTest extends ApiTestSupport {
     }
 
     // ===================== 헬퍼 =====================
+
+    /**
+     * 같은 사람의 재할당 규칙:
+     * - 계획 기간이 겹치지 않으면 같은 프로젝트에 다시 할당 가능
+     * - 겹치면(경계일 같아도) 등록/수정 모두 409 DUPLICATE_ASSIGNMENT
+     * - 같은 사람 판단은 사용자 ID 또는 이메일 (이름이 같은 동명이인은 다른 사람)
+     * - 프로젝트 투입 인원 수는 같은 사람을 1명으로 센다
+     */
+    @Test
+    void samePersonCanBeReassignedOnlyWithoutPeriodOverlap() throws Exception {
+        String admin = admin();
+        long p1 = projectId("SI-2026-001"); // 계획 2026-01-01 ~ 03-31, 시드 할당: kim(01-01~03-31), lee(02-01~03-31)
+        long userId = userId("user");
+        String url = "/api/admin/projects/" + p1 + "/assignments";
+
+        // 1차 투입 1월, 철수 후 2차 투입 3월 → 둘 다 등록 가능
+        mvc.perform(postJson(admin, url, assignment(userId, "2026-01-01", "2026-01-31"))).andExpect(status().isCreated());
+        long second = json(mvc.perform(postJson(admin, url, assignment(userId, "2026-03-01", "2026-03-31")))
+                .andExpect(status().isCreated())).get("id").asLong();
+
+        // 같은 사람이 두 번 할당돼도 프로젝트 투입 인원은 1명으로 센다 (kim, lee, user = 3명)
+        mvc.perform(getAs(admin, "/api/admin/projects/" + p1))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.assignedHeadcount").value(3));
+
+        // 경계일이 겹침(1월 31일) → 409
+        mvc.perform(postJson(admin, url, assignment(userId, "2026-01-31", "2026-02-10")))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("DUPLICATE_ASSIGNMENT"));
+
+        // 빈 기간(2월)에는 3차 할당 가능
+        mvc.perform(postJson(admin, url, assignment(userId, "2026-02-01", "2026-02-28"))).andExpect(status().isCreated());
+
+        // 수정으로 기간을 넓혀 다른 할당(2월)과 겹치게 하는 것도 409, 자기 자신과는 겹쳐도 됨
+        mvc.perform(putJson(admin, url + "/" + second, assignment(userId, "2026-02-20", "2026-03-31")))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("DUPLICATE_ASSIGNMENT"));
+        mvc.perform(putJson(admin, url + "/" + second, assignment(userId, "2026-03-05", "2026-03-31")))
+                .andExpect(status().isOk());
+
+        // 이메일이 kim과 같은 다른 계정 → 같은 사람으로 보고 kim의 기간(01-01~03-31)과 겹치므로 409
+        long kimOther = json(mvc.perform(postJson(admin, "/api/admin/users", Map.of("username", "kim_other",
+                        "password", "pass1234", "name", "김철수", "email", "KIM@example.com", "roles", List.of("ROLE_USER"))))
+                .andExpect(status().isCreated())).get("id").asLong();
+        mvc.perform(postJson(admin, url, assignment(kimOther, "2026-03-01", "2026-03-10")))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("DUPLICATE_ASSIGNMENT"));
+
+        // 이름만 같은 동명이인(이메일 없음) → 다른 사람이므로 할당 가능
+        long kimNamesake = json(mvc.perform(postJson(admin, "/api/admin/users", Map.of("username", "kim_namesake",
+                        "password", "pass1234", "name", "김철수", "roles", List.of("ROLE_USER"))))
+                .andExpect(status().isCreated())).get("id").asLong();
+        mvc.perform(postJson(admin, url, assignment(kimNamesake, "2026-03-01", "2026-03-10")))
+                .andExpect(status().isCreated());
+    }
 
     private static Map<String, Object> project(String code, String start, String end) {
         Map<String, Object> m = new HashMap<>();
