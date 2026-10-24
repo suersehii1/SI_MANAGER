@@ -41,6 +41,14 @@ public class UserService {
         return UserResponse.from(get(id));
     }
 
+    /** 내 화면 스킨 변경 (LIGHT/DARK 값 검증은 ThemeRequest에서 한다) */
+    @Transactional
+    public UserResponse updateTheme(Long id, String theme) {
+        User u = get(id);
+        u.setTheme(theme);
+        return UserResponse.from(userRepository.saveAndFlush(u));
+    }
+
     @Transactional(readOnly = true)
     public User get(Long id) {
         return userRepository.findById(id).orElseThrow(() -> BusinessException.notFound("사용자"));

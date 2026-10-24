@@ -44,6 +44,10 @@ public class User {
     @Column(name = "enabled", nullable = false)
     private boolean enabled = true;
 
+    /** 화면 스킨: LIGHT(낮) / DARK(밤) */
+    @Column(name = "theme", nullable = false, length = 10)
+    private String theme = "LIGHT";
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -88,6 +92,8 @@ public class User {
     public void setJobTitle(String jobTitle) { this.jobTitle = jobTitle; }
     public boolean isEnabled() { return enabled; }
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
+    public String getTheme() { return theme; }
+    public void setTheme(String theme) { this.theme = theme; }
     public Set<Role> getRoles() { return roles; }
     public void setRoles(Set<Role> roles) { this.roles = roles; }
     public OffsetDateTime getCreatedAt() { return createdAt; }

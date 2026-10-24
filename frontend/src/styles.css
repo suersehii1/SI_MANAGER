@@ -2,8 +2,9 @@ html, body, #app {
   margin: 0;
   height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-  background: #f5f7fa;
-  color: #303133;
+  /* 색상은 Element Plus 변수 사용 → 낮/밤 스킨(<html class="dark">)에 따라 자동 전환 */
+  background: var(--el-bg-color-page);
+  color: var(--el-text-color-primary);
 }
 
 .page-header {
@@ -30,7 +31,7 @@ html, body, #app {
 }
 
 .card {
-  background: #fff;
+  background: var(--el-bg-color);
   border-radius: 6px;
   padding: 16px;
   margin-bottom: 16px;
@@ -48,7 +49,7 @@ html, body, #app {
   position: relative;
   height: 16px;
   margin-top: 12px;
-  background: #ebeef5;
+  background: var(--el-fill-color);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -62,7 +63,7 @@ html, body, #app {
   font-size: 11px;
   line-height: 16px;
   text-align: center;
-  color: #303133;
+  color: var(--el-text-color-primary);
 }
 
 /* AG Grid 셀 안의 Element Plus 스타일 버튼 간격 */
@@ -82,15 +83,34 @@ html, body, #app {
 
 .row-rolled-up {
   font-weight: 600;
-  background: #f7f9fc !important;
+  background: var(--el-fill-color-lighter) !important;
 }
 
 .row-group {
   font-weight: 600;
-  background: #f7f9fc !important;
+  background: var(--el-fill-color-lighter) !important;
 }
 
 .text-muted {
-  color: #909399;
+  color: var(--el-text-color-secondary);
   font-size: 12px;
+}
+
+/* ===== 밤 스킨: AG Grid(quartz) 색상 =====
+   Element Plus 다크 변수와 같은 계열로 맞춘다 (html.dark 일 때만 적용) */
+html.dark .ag-theme-quartz {
+  --ag-background-color: var(--el-bg-color);
+  --ag-foreground-color: var(--el-text-color-primary);
+  --ag-header-background-color: var(--el-fill-color-light);
+  --ag-header-foreground-color: var(--el-text-color-primary);
+  --ag-odd-row-background-color: var(--el-bg-color);
+  --ag-row-hover-color: var(--el-fill-color);
+  --ag-selected-row-background-color: var(--el-color-primary-light-9);
+  --ag-border-color: var(--el-border-color);
+  --ag-row-border-color: var(--el-border-color-lighter);
+  --ag-secondary-foreground-color: var(--el-text-color-secondary);
+  --ag-input-border-color: var(--el-border-color);
+  --ag-control-panel-background-color: var(--el-bg-color-overlay);
+  --ag-modal-overlay-background-color: rgba(0, 0, 0, 0.4);
+  color-scheme: dark;
 }

@@ -21,7 +21,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * WBS API (#30~#35) 검증 — specs-wbs §W4, W7.
- * 시드(V4): SI-2026-001에 10개 항목(W3.1). 멤버 = kim, lee. 'user'는 비멤버 USER.
+ * 시드(V4): SI-2026-001에 10개 항목(W3.1). 멤버 = kim(PM), lee(DEVELOPER). 'user'는 비멤버 USER.
+ * WBS 쓰기 권한: ADMIN 또는 프로젝트 PM (kim). lee는 멤버지만 PM이 아니라 조회만.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -89,10 +90,12 @@ class WbsControllerTest extends ApiTestSupport {
     }
 
     @Test
-    void readIsAllowedForEveryoneButCanEditOnlyForAdminOrMember() throws Exception {
+    void readIsAllowedForEveryoneButCanEditOnlyForAdminOrPm() throws Exception {
         String url = "/api/projects/" + projectId("SI-2026-001") + "/wbs";
         mvc.perform(getAs(user(), url)).andExpect(status().isOk()).andExpect(jsonPath("$.canEdit").value(false));
+        // kim = SI-2026-001의 PM → 편집 가능, lee = 같은 프로젝트의 DEVELOPER → 조회만
         mvc.perform(getAs(kim(), url)).andExpect(status().isOk()).andExpect(jsonPath("$.canEdit").value(true));
+        mvc.perform(getAs(login("lee", "user1234"), url)).andExpect(status().isOk()).andExpect(jsonPath("$.canEdit").value(false));
         mvc.perform(getAs(admin(), url)).andExpect(status().isOk()).andExpect(jsonPath("$.canEdit").value(true));
         mvc.perform(getAs(user(), "/api/projects/999999/wbs")).andExpect(status().isNotFound());
     }
@@ -123,9 +126,24 @@ class WbsControllerTest extends ApiTestSupport {
     }
 
     @Test
-    void memberUserCanCreate() throws Exception {
+    void nonPmMemberCannotWrite() throws Exception {
+        // lee는 SI-2026-001에 DEVELOPER로 할당된 멤버지만 PM이 아니므로 추가/수정/삭제/이동 모두 403
+        String lee = login("lee", "user1234");
         long p1 = projectId("SI-2026-001");
-        mvc.perform(postJson(kim(), "/api/projects/" + p1 + "/wbs", item("멤버가 추가")))
+        long dbDesign = itemId(p1, "DB 설계");
+        mvc.perform(postJson(lee, "/api/projects/" + p1 + "/wbs", item("x")))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("FORBIDDEN"));
+        mvc.perform(putJson(lee, "/api/wbs/" + dbDesign, item("x"))).andExpect(status().isForbidden());
+        mvc.perform(deleteAs(lee, "/api/wbs/" + dbDesign)).andExpect(status().isForbidden());
+        mvc.perform(postJson(lee, "/api/wbs/" + dbDesign + "/move", Map.of("index", 0)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void pmUserCanCreate() throws Exception {
+        long p1 = projectId("SI-2026-001");
+        mvc.perform(postJson(kim(), "/api/projects/" + p1 + "/wbs", item("PM이 추가")))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", containsString("/api/wbs/")))
                 .andExpect(jsonPath("$.wbsCode").value("5"))

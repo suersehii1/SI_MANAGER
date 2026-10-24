@@ -12,6 +12,9 @@ public interface AssignmentRepository extends JpaRepository<ProjectAssignment, L
 
     boolean existsByProjectIdAndUserId(Long projectId, Long userId);
 
+    /** 해당 프로젝트에 특정 역할(예: 'PM')로 할당된 적이 있는지 (WBS 편집 권한 판정용) */
+    boolean existsByProjectIdAndUserIdAndRoleInProject(Long projectId, Long userId, String roleInProject);
+
     /** 프로젝트 투입 인원 수 (같은 사람이 기간을 나눠 여러 번 할당돼도 1명) */
     @Query("select count(distinct a.user.id) from ProjectAssignment a where a.project.id = :projectId")
     long countByProjectId(@Param("projectId") Long projectId);

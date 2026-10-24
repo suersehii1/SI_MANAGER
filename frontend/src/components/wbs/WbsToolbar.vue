@@ -40,7 +40,7 @@ const canOutdent = computed(() => selected.value && store.outdentTarget(selected
         <span>전체 진척률</span>
         <el-progress :percentage="store.overallProgress" :stroke-width="14" style="width: 200px" :format="(p) => `${p.toFixed(1)}%`" />
       </div>
-      <span v-if="projectId && !store.canEdit" class="text-muted">조회 전용 (ADMIN 또는 프로젝트 멤버만 편집 가능)</span>
+      <span v-if="projectId && !store.canEdit" class="text-muted">조회 전용 (ADMIN 또는 이 프로젝트의 PM만 편집 가능)</span>
     </div>
     <div v-if="projectId" class="toolbar">
       <template v-if="store.canEdit">

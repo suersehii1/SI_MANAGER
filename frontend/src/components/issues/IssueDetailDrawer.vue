@@ -88,7 +88,7 @@ defineExpose({ reload: load })
 <style scoped>
 .issue-description {
   white-space: pre-wrap;
-  background: #f5f7fa;
+  background: var(--el-fill-color-light);
   padding: 10px;
   border-radius: 4px;
 }

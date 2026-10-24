@@ -29,9 +29,10 @@ import AppSidebar from '@/components/common/AppSidebar.vue'
   display: flex;
   align-items: center;
 }
+/* 색상은 Element Plus 변수 사용 → 낮/밤 스킨에 따라 자동으로 바뀐다 */
 .app-layout__aside {
-  background: #fff;
-  border-right: 1px solid #e4e7ed;
+  background: var(--el-bg-color);
+  border-right: 1px solid var(--el-border-color-light);
 }
 .app-layout__main {
   padding: 20px;

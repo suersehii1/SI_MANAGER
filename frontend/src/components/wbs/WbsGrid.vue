@@ -183,6 +183,6 @@ const rowClassRules = {
   font-weight: 600;
 }
 .ag-theme-quartz .wbs-row-selected {
-  background: #ecf5ff !important;
+  background: var(--el-color-primary-light-9) !important;
 }
 </style>

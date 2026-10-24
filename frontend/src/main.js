@@ -4,6 +4,8 @@ import ElementPlus from 'element-plus'
 import ko from 'element-plus/es/locale/lang/ko'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import 'element-plus/dist/index.css'
+// 밤 스킨: <html class="dark"> 일 때 Element Plus 색상 변수를 다크용으로 바꾼다
+import 'element-plus/theme-chalk/dark/css-vars.css'
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-quartz.css'
 import './styles.css'
