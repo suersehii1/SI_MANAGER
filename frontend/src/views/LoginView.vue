@@ -57,14 +57,40 @@ async function submit() {
 </template>
 
 <style scoped>
+/* 배경: login-background.jpg (남색·청록 톤이 로고/헤더 색과 맞아 색은 그대로 사용).
+   이미지 안에 가짜 로그인 폼·작은 글씨가 있어 실제 로그인 카드와 겹쳐 보이지 않도록
+   살짝 흐리게(blur) + 남색 그라데이션으로 눌러서 '분위기'만 남긴다. */
 .login {
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
+  background: #0d1b2a; /* 이미지 로딩 전 바탕색 */
 }
+.login::before {
+  content: '';
+  position: absolute;
+  inset: -24px; /* blur 때문에 가장자리가 비치지 않도록 조금 크게 */
+  background: url('../assets/login-background.jpg') center / cover no-repeat;
+  filter: blur(4px) brightness(0.8);
+}
+.login::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(13, 27, 42, 0.3) 0%, rgba(13, 27, 42, 0.7) 100%);
+}
+/* 로그인 카드는 배경 위에 떠 있는 느낌으로 */
 .login__card {
+  position: relative;
+  z-index: 1;
   width: 360px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
 }
 /* 로고 아래 얇은 구분선 → 그 아래 시스템 이름 */
 .login__brand {
