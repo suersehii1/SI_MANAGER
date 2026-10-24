@@ -21,6 +21,8 @@ async function waitGrid() {
   await settle()
 }
 const has = (testid) => !!document.body.querySelector(`[data-testid="${testid}"]`)
+// 화면에 보이는 컬럼 제목 (왼쪽부터)
+const headers = () => [...document.body.querySelectorAll('.ag-header-cell-text')].map((e) => e.textContent.trim())
 
 describe('Admin 조회 전용', () => {
   let wrapper
@@ -45,11 +47,22 @@ describe('Admin 조회 전용', () => {
     expect(document.body.querySelector('[data-testid="project-assignments-7"]').textContent).toBe('할당 보기')
   })
 
-  it('사용자 표: USER는 수정 버튼이 없다', async () => {
-    wrapper = mountWith(UserTable, { props: { rows: [user], canEdit: false } })
+  it('사용자 표: USER는 수정 버튼과 아이디 컬럼이 없다', async () => {
+    wrapper = mountWith(UserTable, { props: { rows: [{ ...user, username: null }], canEdit: false } })
     await waitGrid()
     expect(has('user-edit-3')).toBe(false)
     expect(document.body.textContent).toContain('김철수')
+    expect(headers()).not.toContain('아이디')
+  })
+
+  it('사용자 표: 이름 옆 영어이름, 이메일 옆 전화번호 (ADMIN은 아이디도)', async () => {
+    const row = { ...user, englishName: 'Cheolsu Kim', email: 'kim@example.com', phone: '010-1234-5678' }
+    wrapper = mountWith(UserTable, { props: { rows: [row], canEdit: true } })
+    await waitGrid()
+    const h = headers()
+    expect(h.slice(0, 5)).toEqual(['아이디', '이름', '영어이름', '이메일', '전화번호'])
+    expect(document.body.textContent).toContain('Cheolsu Kim')
+    expect(document.body.textContent).toContain('010-1234-5678')
   })
 
   it('Admin 탭 줄: USER에게만 "조회 전용" 안내', async () => {

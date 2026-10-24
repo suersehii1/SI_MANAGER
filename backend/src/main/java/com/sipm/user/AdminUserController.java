@@ -40,9 +40,12 @@ public class AdminUserController {
                                            @RequestParam(required = false) Integer size,
                                            @RequestParam(required = false) String keyword,
                                            @RequestParam(required = false) Boolean enabled,
-                                           HttpServletRequest request) {
+                                           HttpServletRequest request,
+                                           @AuthenticationPrincipal AppUserPrincipal me) {
+        // ADMIN이 아니면(조회 전용) 아이디를 숨긴다 → 기본 정렬도 이름순
+        boolean asAdmin = me.isAdmin();
         return userService.search(keyword, enabled, SortResolver.pageable(page, size,
-                request.getParameterValues("sort"), SORTS, "username,asc", false));
+                request.getParameterValues("sort"), SORTS, asAdmin ? "username,asc" : "name,asc", false), asAdmin);
     }
 
     @PreAuthorize("hasRole('ADMIN')")

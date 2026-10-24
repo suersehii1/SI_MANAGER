@@ -73,10 +73,15 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<UserResponse> search(String keyword, Boolean enabled, Pageable pageable) {
+    /**
+     * 사용자 관리 목록. asAdmin=false(일반 USER, 조회 전용)이면 아이디(username)를 비워서 내려주고
+     * 아이디로 검색되지도 않게 한다.
+     */
+    public PageResponse<UserResponse> search(String keyword, Boolean enabled, Pageable pageable, boolean asAdmin) {
         Specification<User> spec = Specification.where(UserRepository.enabled(enabled))
-                .and(UserRepository.keyword(LikePatterns.contains(keyword), true));
-        return PageResponse.of(userRepository.findAll(spec, pageable), UserResponse::from);
+                .and(UserRepository.manageKeyword(LikePatterns.contains(keyword), asAdmin));
+        return PageResponse.of(userRepository.findAll(spec, pageable),
+                u -> asAdmin ? UserResponse.from(u) : UserResponse.from(u).withoutUsername());
     }
 
     @Transactional
@@ -85,7 +90,9 @@ public class UserService {
             throw new BusinessException(ErrorCode.DUPLICATE_USERNAME);
         }
         User u = new User(req.username(), passwordEncoder.encode(req.password()), req.name().trim());
+        u.setEnglishName(blankToNull(req.englishName()));
         u.setEmail(blankToNull(req.email()));
+        u.setPhone(blankToNull(req.phone()));
         u.setJobTitle(checkJobTitle(blankToNull(req.jobTitle()), null));
         u.setEnabled(req.enabled() == null || req.enabled());
         u.setRoles(resolveRoles(req.roles()));
@@ -111,7 +118,9 @@ public class UserService {
             u.setPasswordHash(passwordEncoder.encode(req.password()));
         }
         u.setName(req.name().trim());
+        u.setEnglishName(blankToNull(req.englishName()));
         u.setEmail(blankToNull(req.email()));
+        u.setPhone(blankToNull(req.phone()));
         u.setJobTitle(checkJobTitle(blankToNull(req.jobTitle()), u.getJobTitle()));
         u.setEnabled(enabled);
         u.setRoles(resolveRoles(req.roles()));

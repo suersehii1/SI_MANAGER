@@ -11,10 +11,14 @@ const props = defineProps({
 })
 const emit = defineEmits(['edit'])
 
+// 컬럼 순서: (아이디) 이름 · 영어이름 · 이메일 · 전화번호 · 직급 ...
+// 아이디는 ADMIN(canEdit)에게만 보인다 (서버도 일반 USER에게는 아이디를 비워서 보냄)
 const columnDefs = [
-  { field: 'username', headerName: '아이디', width: 130 },
-  { field: 'name', headerName: '이름', width: 120 },
-  { field: 'email', headerName: '이메일', flex: 1, minWidth: 160 },
+  { field: 'username', headerName: '아이디', width: 130, hide: !props.canEdit },
+  { field: 'name', headerName: '이름', width: 110 },
+  { field: 'englishName', headerName: '영어이름', width: 150 },
+  { field: 'email', headerName: '이메일', flex: 1, minWidth: 180 },
+  { field: 'phone', headerName: '전화번호', width: 140 },
   { field: 'jobTitle', headerName: '직급', width: 100 },
   {
     field: 'roles',

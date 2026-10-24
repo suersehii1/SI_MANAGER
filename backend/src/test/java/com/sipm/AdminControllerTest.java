@@ -325,6 +325,56 @@ class AdminControllerTest extends ApiTestSupport {
                 .andExpect(jsonPath("$.jobTitle").value("책임"));
     }
 
+    /**
+     * 사용자 영어 이름·전화번호(선택 입력)와 목록의 아이디 공개 범위:
+     * - 등록/수정 시 저장, 형식이 틀리면 400
+     * - 사용자 목록: ADMIN에게는 아이디 포함, 일반 USER에게는 아이디를 비우고 아이디로 검색도 안 됨
+     */
+    @Test
+    void userEnglishNameAndPhoneAndUsernameVisibility() throws Exception {
+        String admin = admin();
+        Map<String, Object> body = new HashMap<>(Map.of("username", "eng_user", "password", "pass1234", "name", "홍길동",
+                "englishName", "Gil-dong Hong", "email", "hong@example.com", "phone", "010-1234-5678",
+                "roles", List.of("ROLE_USER")));
+        long id = json(mvc.perform(postJson(admin, "/api/admin/users", body))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.englishName").value("Gil-dong Hong"))
+                .andExpect(jsonPath("$.phone").value("010-1234-5678"))).get("id").asLong();
+
+        // 형식 오류: 영어 이름에 한글, 전화번호 형식 틀림 → 400 (필드별 오류)
+        body.put("username", "eng_user2");
+        body.put("englishName", "홍길동");
+        body.put("phone", "12-34");
+        mvc.perform(postJson(admin, "/api/admin/users", body))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors[?(@.field == 'englishName')]").exists())
+                .andExpect(jsonPath("$.fieldErrors[?(@.field == 'phone')]").exists());
+
+        // 수정: 영어 이름 변경, 전화번호 비우기(선택 입력이므로 허용)
+        mvc.perform(putJson(admin, "/api/admin/users/" + id, Map.of("name", "홍길동", "englishName", "Gildong Hong",
+                        "phone", "", "roles", List.of("ROLE_USER"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.englishName").value("Gildong Hong"))
+                .andExpect(jsonPath("$.phone").value(nullValue()));
+
+        // ADMIN 목록: 아이디 포함, 영어 이름으로 검색 가능
+        mvc.perform(getAs(admin, "/api/admin/users?keyword=gildong"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].username").value("eng_user"));
+
+        // 일반 USER 목록: 아이디는 비어 있고(null), 아이디로는 검색되지 않음
+        String user = user();
+        mvc.perform(getAs(user, "/api/admin/users?keyword=gildong"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].username").value(nullValue()))
+                .andExpect(jsonPath("$.content[0].name").value("홍길동"))
+                .andExpect(jsonPath("$.content[0].englishName").value("Gildong Hong"));
+        mvc.perform(getAs(user, "/api/admin/users?keyword=eng_user"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(0));
+    }
+
     @Test
     void adminCannotDisableOrDemoteSelf() throws Exception {
         String admin = admin();

@@ -35,8 +35,16 @@ public class User {
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
+    /** 영어 이름 (선택) */
+    @Column(name = "english_name", length = 100)
+    private String englishName;
+
     @Column(name = "email", length = 200)
     private String email;
+
+    /** 전화번호 (선택) */
+    @Column(name = "phone", length = 20)
+    private String phone;
 
     @Column(name = "job_title", length = 50)
     private String jobTitle;
@@ -86,6 +94,10 @@ public class User {
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+    public String getEnglishName() { return englishName; }
+    public void setEnglishName(String englishName) { this.englishName = englishName; }
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
     public String getJobTitle() { return jobTitle; }
