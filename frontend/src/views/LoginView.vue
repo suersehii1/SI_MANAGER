@@ -77,6 +77,9 @@ async function submit() {
   display: block;
   max-width: 100%;
   height: auto;
+  /* 로고 이미지 배경이 순백이 아닌 미색(254,253)이라 카드 위에 옅은 사각형이 보인다.
+     multiply로 섞으면 흰 배경은 카드 색에 흡수되고 남색 로고는 그대로 보인다 */
+  mix-blend-mode: multiply;
 }
 .login__title {
   margin: 0 0 16px;
