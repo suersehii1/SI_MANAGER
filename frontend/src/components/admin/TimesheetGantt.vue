@@ -4,8 +4,11 @@ import VChart from 'vue-echarts'
 import { buildGanttOption, GANTT_COLORS } from '@/utils/gantt'
 
 // 타임시트 Gantt: y = 사용자·프로젝트, 계획 막대(연한) + 실제 막대(진한, asOf 적용된 유효 종료일까지)
+// height: 보이는 영역 높이. 지정하면(예: '100%') 차트는 행 수만큼 커지고 이 영역 안에서 세로 스크롤된다.
+//         지정하지 않으면 예전처럼 차트 높이만큼 늘어난다.
 const props = defineProps({
-  data: { type: Object, default: null }
+  data: { type: Object, default: null },
+  height: { type: String, default: null }
 })
 
 const rows = computed(() => {
@@ -31,11 +34,18 @@ const option = computed(() => {
   return buildGanttOption({ categories, bars, markDate: asOf })
 })
 
-const height = computed(() => `${Math.max(240, rows.value.length * 44 + 90)}px`)
+// 행 하나당 44px로 차트 높이를 정한다 (사용자가 많아도 막대가 찌그러지지 않도록)
+const chartHeight = computed(() => `${Math.max(240, rows.value.length * 44 + 90)}px`)
 </script>
 
 <template>
-  <div data-testid="timesheet-gantt">
-    <v-chart :option="option" autoresize :style="{ height }" />
+  <div data-testid="timesheet-gantt" class="timesheet-gantt" :style="{ height: props.height || 'auto' }">
+    <v-chart :option="option" autoresize :style="{ height: chartHeight }" />
   </div>
 </template>
+
+<style scoped>
+.timesheet-gantt {
+  overflow-y: auto;
+}
+</style>

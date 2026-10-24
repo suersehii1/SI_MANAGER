@@ -9,8 +9,10 @@ import { formatMM } from '@/utils/format'
  * "사용자 행(굵게) → 그 사용자의 프로젝트 행(들여쓰기)" 순서로 평탄화해 표시한다.
  * 월 총합은 pinnedBottomRowData(하단 고정 행)로 표시. 사용자 월합이 1.00 초과(과다 할당)면 빨간색.
  */
+// height: 표 높이 (기본 520px, 부모 영역을 꽉 채우려면 '100%' → 행이 많으면 표 안에서 스크롤)
 const props = defineProps({
-  data: { type: Object, default: null }
+  data: { type: Object, default: null },
+  height: { type: String, default: '520px' }
 })
 
 const rowData = computed(() => {
@@ -80,10 +82,10 @@ function rowClass(params) {
 </script>
 
 <template>
-  <div data-testid="timesheet-grid">
+  <div data-testid="timesheet-grid" :style="{ height }">
     <ag-grid-vue
       :class="GRID_THEME_CLASS"
-      style="width: 100%; height: 520px"
+      style="width: 100%; height: 100%"
       :row-data="rowData"
       :pinned-bottom-row-data="pinnedBottom"
       :column-defs="columnDefs"
