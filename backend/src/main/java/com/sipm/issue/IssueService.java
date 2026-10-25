@@ -78,11 +78,12 @@ public class IssueService {
     }
 
     @Transactional
-    public void delete(Long id, AppUserPrincipal me) {
+    public void delete(Long id, AppUserPrincipal me, Long version) {
         Issue issue = issueRepository.findWithRefsById(id).orElseThrow(() -> BusinessException.notFound("이슈"));
         if (!me.isAdmin() && !issue.getReporter().getId().equals(me.getId())) {
             throw new AccessDeniedException("Not the reporter");
         }
+        OptimisticLocks.check(issue.getVersion(), version); // 다른 사람이 먼저 수정했으면 삭제하지 않고 409
         issueRepository.delete(issue);
         issueRepository.flush();
         storage.deleteIssueDirsAfterCommit(List.of(id));

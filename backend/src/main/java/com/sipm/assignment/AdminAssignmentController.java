@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -48,8 +49,10 @@ public class AdminAssignmentController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{assignmentId}")
-    public ResponseEntity<Void> delete(@PathVariable("id") Long projectId, @PathVariable Long assignmentId) {
-        assignmentService.delete(projectId, assignmentId);
+    public ResponseEntity<Void> delete(@PathVariable("id") Long projectId, @PathVariable Long assignmentId,
+                                       // 화면이 불러온 버전 (다른 사람이 먼저 수정했으면 409, 없으면 검사 안 함)
+                                       @RequestParam(required = false) Long version) {
+        assignmentService.delete(projectId, assignmentId, version);
         return ResponseEntity.noContent().build();
     }
 }

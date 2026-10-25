@@ -145,6 +145,23 @@ describe('useWbsStore', () => {
       expect(updateWbsItem).toHaveBeenCalledWith(11, { name: '요구사항 정의', version: 5 })
     })
 
+    it('삭제도 목록에서 불러온 version을 같이 보낸다', async () => {
+      store.items = seed().map((r) => ({ ...r, version: r.id === 12 ? 7 : 0 }))
+      deleteWbsItem.mockResolvedValue({})
+      getWbsTree.mockResolvedValue(tree(seed()))
+      await store.remove(12)
+      expect(deleteWbsItem).toHaveBeenCalledWith(12, 7)
+      expect(getWbsTree).toHaveBeenCalledTimes(1)
+    })
+
+    it('삭제가 409면 최신 목록을 다시 불러오고 오류를 넘긴다', async () => {
+      store.items = seed().map((r) => ({ ...r, version: 1 }))
+      deleteWbsItem.mockRejectedValue({ response: { status: 409, data: { code: 'CONCURRENT_MODIFICATION' } } })
+      getWbsTree.mockResolvedValue(tree(seed()))
+      await expect(store.remove(12)).rejects.toMatchObject({ response: { status: 409 } })
+      expect(getWbsTree).toHaveBeenCalledTimes(1)
+    })
+
     it('다른 사람이 먼저 저장해서 409면 최신 목록을 다시 불러오고 오류를 넘긴다', async () => {
       store.items = seed().map((r) => ({ ...r, version: 1 }))
       updateWbsItem.mockRejectedValue({ response: { status: 409, data: { code: 'CONCURRENT_MODIFICATION' } } })

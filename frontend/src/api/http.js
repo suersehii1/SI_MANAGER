@@ -9,6 +9,11 @@ const http = axios.create({
 
 export const TOKEN_KEY = 'sipm.token'
 
+/** 삭제 요청에 붙일 낙관적 잠금 버전 (?version=값). 버전을 모르면 붙이지 않는다 → 서버는 검사하지 않음 */
+export function versionParam(version) {
+  return version === null || version === undefined ? undefined : { version }
+}
+
 /**
  * 인터셉터 등록. router/pinia를 인자로 받아 순환 import를 피하고, 테스트에서 쉽게 대체할 수 있게 한다.
  * - 요청: localStorage 토큰이 있으면 Authorization: Bearer 헤더 추가

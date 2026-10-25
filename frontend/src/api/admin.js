@@ -1,4 +1,4 @@
-import http from './http'
+import http, { versionParam } from './http'
 
 // ----- 프로젝트 -----
 export function listAdminProjects(params) {
@@ -13,8 +13,9 @@ export function createProject(payload) {
 export function updateProject(id, payload) {
   return http.put(`/admin/projects/${id}`, payload).then((r) => r.data)
 }
-export function deleteProject(id) {
-  return http.delete(`/admin/projects/${id}`)
+// version: 화면이 불러온 버전 (다른 사람이 먼저 수정했으면 서버가 409로 삭제를 막음)
+export function deleteProject(id, version) {
+  return http.delete(`/admin/projects/${id}`, { params: versionParam(version) })
 }
 
 // ----- 할당 -----
@@ -27,8 +28,8 @@ export function createAssignment(projectId, payload) {
 export function updateAssignment(projectId, assignmentId, payload) {
   return http.put(`/admin/projects/${projectId}/assignments/${assignmentId}`, payload).then((r) => r.data)
 }
-export function deleteAssignment(projectId, assignmentId) {
-  return http.delete(`/admin/projects/${projectId}/assignments/${assignmentId}`)
+export function deleteAssignment(projectId, assignmentId, version) {
+  return http.delete(`/admin/projects/${projectId}/assignments/${assignmentId}`, { params: versionParam(version) })
 }
 
 // ----- 사용자 -----

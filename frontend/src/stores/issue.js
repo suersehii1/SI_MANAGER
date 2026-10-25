@@ -46,8 +46,9 @@ export const useIssueStore = defineStore('issue', {
     update(id, payload) {
       return issueApi.updateIssue(id, payload)
     },
-    async remove(id) {
-      await issueApi.deleteIssue(id)
+    // version: 목록/상세에서 불러온 버전 (다른 사람이 먼저 수정했으면 409)
+    async remove(id, version) {
+      await issueApi.deleteIssue(id, version)
     },
     // 필터 변경 시 첫 페이지부터 다시 조회
     setFilters(f) {

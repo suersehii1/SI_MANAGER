@@ -50,7 +50,13 @@ async function onDelete(row) {
   } catch (e) {
     return
   }
-  await deleteAssignment(projectId.value, row.id)
+  try {
+    // 목록에서 불러온 버전을 함께 보낸다 → 그 사이 다른 사람이 수정했으면 409 (안내 메시지는 공통 처리기가 표시)
+    await deleteAssignment(projectId.value, row.id, row.version)
+  } catch (e) {
+    if (e.response?.status === 409) load() // 최신 내용으로 다시 조회
+    return
+  }
   ElMessage.success('제외되었습니다.')
   load()
 }

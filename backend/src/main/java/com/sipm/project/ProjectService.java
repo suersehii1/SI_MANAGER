@@ -115,8 +115,9 @@ public class ProjectService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(Long id, Long version) {
         Project p = get(id);
+        OptimisticLocks.check(p.getVersion(), version); // 다른 사람이 먼저 수정했으면 삭제하지 않고 409
         // 첨부 디렉터리 정리를 위해 삭제 전에 이슈 id 목록을 확보 (DB 행은 CASCADE로 삭제됨)
         List<Long> issueIds = issueRepository.findIdsByProjectId(id);
         projectRepository.delete(p);

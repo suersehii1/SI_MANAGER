@@ -82,9 +82,11 @@ public class AssignmentService {
     }
 
     @Transactional
-    public void delete(Long projectId, Long assignmentId) {
+    public void delete(Long projectId, Long assignmentId, Long version) {
         projectService.get(projectId);
-        assignmentRepository.delete(findInProject(projectId, assignmentId));
+        ProjectAssignment a = findInProject(projectId, assignmentId);
+        OptimisticLocks.check(a.getVersion(), version); // 다른 사람이 먼저 수정했으면 삭제하지 않고 409
+        assignmentRepository.delete(a);
     }
 
     /** 할당이 해당 프로젝트 소속이 아니면 404. */

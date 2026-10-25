@@ -52,8 +52,10 @@ public class WbsController {
     }
 
     @DeleteMapping("/api/wbs/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal AppUserPrincipal me) {
-        wbsService.delete(id, me);
+    public ResponseEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal AppUserPrincipal me,
+                                       // 화면이 불러온 버전 (다른 사람이 먼저 수정했으면 409, 없으면 검사 안 함)
+                                       @RequestParam(required = false) Long version) {
+        wbsService.delete(id, me, version);
         return ResponseEntity.noContent().build();
     }
 

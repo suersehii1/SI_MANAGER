@@ -91,7 +91,11 @@ async function onDelete() {
   } catch (e) {
     return
   }
-  await store.remove(item.id)
+  try {
+    await store.remove(item.id) // 스토어가 불러온 버전을 같이 보냄 (409면 최신 목록을 다시 불러옴)
+  } catch (e) {
+    return // 안내 메시지는 공통 처리기가 표시
+  }
   ElMessage.success('삭제되었습니다.')
 }
 </script>

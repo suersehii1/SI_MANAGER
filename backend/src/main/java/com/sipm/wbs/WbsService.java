@@ -141,10 +141,12 @@ public class WbsService {
     // ===================== 삭제 =====================
 
     @Transactional
-    public void delete(Long id, AppUserPrincipal me) {
+    public void delete(Long id, AppUserPrincipal me, Long version) {
         WbsItem item = wbsRepository.findById(id).orElseThrow(() -> BusinessException.notFound("WBS 항목"));
         Long projectId = item.getProject().getId();
         permissionService.checkEdit(projectId, me);
+        // 삭제하려는 항목을 다른 사람이 먼저 수정했으면 하위 트리까지 지우지 않고 409
+        OptimisticLocks.check(item.getVersion(), version);
 
         List<WbsItem> all = wbsRepository.findTreeByProjectId(projectId);
         WbsRollupCalculator.Result tree = calculate(all);

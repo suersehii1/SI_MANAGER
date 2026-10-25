@@ -101,9 +101,17 @@ export const useWbsStore = defineStore('wbs', {
         throw e
       }
     },
+    /**
+     * 삭제. 목록에서 불러온 버전을 같이 보내 다른 사람이 먼저 수정한 항목은 지우지 않게 한다.
+     * 409(또는 그 외 오류)여도 최신 목록을 다시 불러온 뒤 오류를 넘긴다.
+     */
     async remove(id) {
-      await wbsApi.deleteWbsItem(id)
-      await this.fetch(this.projectId)
+      const version = this.items.find((i) => i.id === id)?.version ?? null
+      try {
+        await wbsApi.deleteWbsItem(id, version)
+      } finally {
+        await this.fetch(this.projectId)
+      }
     },
     async move(id, { parentId, index }) {
       const res = await wbsApi.moveWbsItem(id, { parentId, index })
