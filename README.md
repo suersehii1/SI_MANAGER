@@ -1,4 +1,4 @@
-# SI Project Manager
+# 전사 Project 관리 시스템
 
 SI 프로젝트 인력 투입 현황 대시보드 · Admin 콘솔(프로젝트/할당/사용자/월별 타임시트/계획 vs 실제) · 이슈 관리(Jira-like, 첨부 2MB 제한) · 프로젝트별 WBS 작성/수정.
 
