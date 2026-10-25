@@ -86,10 +86,20 @@ export const useWbsStore = defineStore('wbs', {
       await this.fetch(this.projectId)
       return created
     },
+    /**
+     * 수정 (팝업·표 안 바로 수정 공통). 목록에서 불러온 버전을 같이 보내 덮어쓰기를 막는다.
+     * 다른 사람이 먼저 저장해서 409가 나면, 최신 내용을 다시 불러와 화면에 보여 준 뒤 오류를 그대로 넘긴다.
+     */
     async update(id, payload) {
-      const updated = await wbsApi.updateWbsItem(id, payload)
-      await this.fetch(this.projectId)
-      return updated
+      const version = payload.version ?? this.items.find((i) => i.id === id)?.version ?? null
+      try {
+        const updated = await wbsApi.updateWbsItem(id, { ...payload, version })
+        await this.fetch(this.projectId)
+        return updated
+      } catch (e) {
+        if (e.response?.status === 409) await this.fetch(this.projectId)
+        throw e
+      }
     },
     async remove(id) {
       await wbsApi.deleteWbsItem(id)

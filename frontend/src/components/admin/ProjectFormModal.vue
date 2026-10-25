@@ -76,7 +76,9 @@ async function submit() {
     plannedStartDate: form.plannedStartDate,
     plannedEndDate: form.plannedEndDate,
     actualStartDate: form.actualStartDate || null,
-    actualEndDate: form.actualEndDate || null
+    actualEndDate: form.actualEndDate || null,
+    // 수정이면 불러온 버전을 같이 보낸다 (덮어쓰기 방지)
+    version: isEdit.value ? props.project?.version ?? null : null
   }
   saving.value = true
   try {

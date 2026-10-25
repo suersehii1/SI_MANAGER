@@ -29,7 +29,11 @@ public class AssignmentRequest {
     private LocalDate actualEnd;
     @Size(max = 500)
     private String note;
+    /** 수정 시 화면이 불러온 버전 (덮어쓰기 방지). 생성 시에는 쓰지 않음 */
+    private Long version;
 
+    public Long getVersion() { return version; }
+    public void setVersion(Long version) { this.version = version; }
     public Long getUserId() { return userId; }
     public void setUserId(Long userId) { this.userId = userId; }
     public String getRoleInProject() { return roleInProject; }

@@ -30,7 +30,11 @@ public class ProjectRequest {
     private LocalDate plannedEndDate;
     private LocalDate actualStartDate;
     private LocalDate actualEndDate;
+    /** 수정 시 화면이 불러온 버전 (덮어쓰기 방지). 생성 시에는 쓰지 않음 */
+    private Long version;
 
+    public Long getVersion() { return version; }
+    public void setVersion(Long version) { this.version = version; }
     public String getCode() { return code; }
     public void setCode(String code) { this.code = code; }
     public String getName() { return name; }

@@ -18,5 +18,7 @@ public record IssueRequest(
         IssuePriority priority,
         @Min(0) @Max(100) Integer progress,
         Long assigneeId,
-        LocalDate dueDate) {
+        LocalDate dueDate,
+        // 수정 시 화면이 불러온 버전 (덮어쓰기 방지). 생성 시에는 쓰지 않음
+        Long version) {
 }

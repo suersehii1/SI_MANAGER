@@ -3,6 +3,7 @@ package com.sipm.assignment;
 import com.sipm.assignment.dto.AssignmentRequest;
 import com.sipm.assignment.dto.AssignmentResponse;
 import com.sipm.common.error.BusinessException;
+import com.sipm.common.error.OptimisticLocks;
 import com.sipm.common.error.ErrorCode;
 import com.sipm.common.error.FieldErrorItem;
 import com.sipm.common.util.Times;
@@ -67,6 +68,7 @@ public class AssignmentService {
     public AssignmentResponse update(Long projectId, Long assignmentId, AssignmentRequest req) {
         Project project = projectService.get(projectId);
         ProjectAssignment a = findInProject(projectId, assignmentId);
+        OptimisticLocks.check(a.getVersion(), req.getVersion()); // 다른 사람이 먼저 수정했으면 409
         // userId는 변경 불가
         if (!a.getUser().getId().equals(req.getUserId())) {
             throw BusinessException.validation("userId", "IMMUTABLE", "할당된 사용자는 변경할 수 없습니다.", req.getUserId());

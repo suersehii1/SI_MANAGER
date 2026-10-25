@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
@@ -153,6 +154,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ApiError> handleAuth(AuthenticationException ex, HttpServletRequest req) {
         return build(ErrorCode.UNAUTHORIZED, null, req, List.of());
+    }
+
+    /** 같은 순간에 두 사람이 저장해서 DB의 버전 검사(@Version)에 걸린 경우 → 409 */
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<ApiError> handleOptimisticLock(ObjectOptimisticLockingFailureException ex, HttpServletRequest req) {
+        log.info("Optimistic lock conflict on {}: {}", req.getRequestURI(), ex.getMessage());
+        return build(ErrorCode.CONCURRENT_MODIFICATION, null, req, List.of());
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)

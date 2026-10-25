@@ -37,7 +37,11 @@ public class WbsItemRequest {
     @Min(0)
     @Max(100)
     private Integer progress;
+    /** 수정 시 화면이 불러온 버전 (덮어쓰기 방지). 생성 시에는 쓰지 않음 */
+    private Long version;
 
+    public Long getVersion() { return version; }
+    public void setVersion(Long version) { this.version = version; }
     public Long getParentId() { return parentId; }
     public void setParentId(Long parentId) { this.parentId = parentId; }
     public Long getInsertAfterId() { return insertAfterId; }

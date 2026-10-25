@@ -4,6 +4,7 @@ import com.sipm.attachment.AttachmentRepository;
 import com.sipm.attachment.FileStorageService;
 import com.sipm.attachment.dto.AttachmentResponse;
 import com.sipm.common.error.BusinessException;
+import com.sipm.common.error.OptimisticLocks;
 import com.sipm.common.page.PageResponse;
 import com.sipm.issue.dto.IssueDetail;
 import com.sipm.issue.dto.IssueListItem;
@@ -70,6 +71,7 @@ public class IssueService {
     @Transactional
     public IssueDetail update(Long id, IssueRequest req) {
         Issue issue = issueRepository.findWithRefsById(id).orElseThrow(() -> BusinessException.notFound("이슈"));
+        OptimisticLocks.check(issue.getVersion(), req.version()); // 다른 사람이 먼저 수정했으면 409
         apply(issue, req);
         issueRepository.saveAndFlush(issue);
         return toDetail(issue);

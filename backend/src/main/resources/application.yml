@@ -2,6 +2,11 @@ server:
   port: 8080
   tomcat:
     max-swallow-size: 20MB
+    # 동시에 처리하는 요청 수 (Spring Boot 기본값과 같지만 명시). 넘치는 요청은 accept-count만큼 줄을 선다
+    threads:
+      max: ${SERVER_MAX_THREADS:200}
+      min-spare: 10
+    accept-count: 100
 spring:
   application:
     name: sipm-backend
@@ -9,6 +14,18 @@ spring:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/sipm}
     username: ${SPRING_DATASOURCE_USERNAME:sipm}
     password: ${SPRING_DATASOURCE_PASSWORD:sipm}
+    # 커넥션 풀(HikariCP): DB 연결을 미리 만들어 두고 요청마다 빌려 쓰고 돌려받는다.
+    # 모든 값은 환경변수로 바꿀 수 있다 → docker-compose.yml 의 backend.environment 에서 숫자만 고치고
+    # 백엔드를 재시작하면 반영된다 (다시 빌드할 필요 없음). 아래 ${이름:값} 의 값은 환경변수가 없을 때의 기본값.
+    # 기준: 사내 시스템 동시 사용자 50명 안팎. PostgreSQL 기본 최대 연결(100개) 안에서 여유를 둔다.
+    hikari:
+      pool-name: sipm-db-pool
+      maximum-pool-size: ${DB_POOL_MAX:20}                     # 동시에 쓸 수 있는 DB 연결 최대 개수
+      minimum-idle: ${DB_POOL_MIN_IDLE:5}                      # 한가할 때도 미리 열어 두는 연결 수
+      connection-timeout: ${DB_POOL_CONNECTION_TIMEOUT_MS:10000}  # 연결이 모두 사용 중일 때 기다리는 최대 시간(ms)
+      idle-timeout: ${DB_POOL_IDLE_TIMEOUT_MS:600000}          # 안 쓰는 여분 연결을 닫기까지 시간(ms) = 10분
+      max-lifetime: ${DB_POOL_MAX_LIFETIME_MS:1800000}         # 연결 하나를 쓰는 최대 시간(ms) = 30분, 이후 새로 교체
+      leak-detection-threshold: ${DB_POOL_LEAK_DETECTION_MS:60000}  # 연결을 이 시간(ms) 넘게 붙잡으면 로그 경고
   jpa:
     open-in-view: false
     hibernate:

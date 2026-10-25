@@ -109,7 +109,9 @@ async function submit() {
     plannedEnd: form.plannedEnd,
     actualStart: form.actualStart || null,
     actualEnd: form.actualEnd || null,
-    note: form.note || null
+    note: form.note || null,
+    // 수정이면 불러온 버전을 같이 보낸다 (덮어쓰기 방지)
+    version: isEdit.value ? props.assignment?.version ?? null : null
   }
   saving.value = true
   try {

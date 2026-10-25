@@ -27,6 +27,18 @@ services:
       APP_STORAGE_ROOT: /data/uploads
       CORS_ALLOWED_ORIGINS: http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173
       TZ: Asia/Seoul
+      # ===== DB 커넥션 풀 설정 (HikariCP) =====
+      # 숫자만 고친 뒤 백엔드만 재시작하면 반영된다 (다시 빌드할 필요 없음):
+      #   docker-compose -p si_project_manager up -d --no-deps backend
+      # 연결 개수 합계는 PostgreSQL 최대 연결 수(기본 100)보다 작게 유지한다.
+      DB_POOL_MAX: "20"                       # 동시에 쓸 수 있는 DB 연결 최대 개수
+      DB_POOL_MIN_IDLE: "5"                   # 한가할 때도 미리 열어 두는 연결 수
+      DB_POOL_CONNECTION_TIMEOUT_MS: "10000"  # 연결이 모두 사용 중일 때 기다리는 최대 시간 (10초)
+      DB_POOL_IDLE_TIMEOUT_MS: "600000"       # 안 쓰는 여분 연결을 닫기까지 시간 (10분)
+      DB_POOL_MAX_LIFETIME_MS: "1800000"      # 연결 하나를 쓰는 최대 시간 (30분), 이후 새 연결로 교체
+      DB_POOL_LEAK_DETECTION_MS: "60000"      # 연결을 이 시간 넘게 붙잡고 있으면 로그에 경고 (60초)
+      # 웹 서버가 동시에 처리하는 요청 수
+      SERVER_MAX_THREADS: "200"
     ports:
       - "8080:8080"
     volumes:

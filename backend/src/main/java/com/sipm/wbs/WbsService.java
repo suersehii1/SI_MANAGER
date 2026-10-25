@@ -2,6 +2,7 @@ package com.sipm.wbs;
 
 import com.sipm.assignment.AssignmentRepository;
 import com.sipm.common.error.BusinessException;
+import com.sipm.common.error.OptimisticLocks;
 import com.sipm.common.error.ErrorCode;
 import com.sipm.common.error.FieldErrorItem;
 import com.sipm.project.Project;
@@ -118,6 +119,7 @@ public class WbsService {
         WbsItem item = wbsRepository.findById(id).orElseThrow(() -> BusinessException.notFound("WBS 항목"));
         Project project = item.getProject();
         permissionService.checkEdit(project.getId(), me);
+        OptimisticLocks.check(item.getVersion(), req.getVersion()); // 다른 사람이 먼저 수정했으면 409
 
         boolean hasChildren = false;
         for (WbsItem w : wbsRepository.findTreeByProjectId(project.getId())) {
@@ -378,7 +380,7 @@ public class WbsService {
                 w.getName(), w.getDescription(), w.getDeliverable(), UserSummary.from(w.getAssignee()),
                 n.status, w.getWeight(), n.plannedStart, n.plannedEnd, n.actualStart, n.actualEnd,
                 n.progress, WbsRollupCalculator.plannedDays(n), WbsRollupCalculator.isDelayed(n, asOf),
-                n.hasChildren(), n.children.size(), n.hasChildren(), w.getUpdatedAt());
+                n.hasChildren(), n.children.size(), n.hasChildren(), w.getUpdatedAt(), w.getVersion());
     }
 
     private static String blankToNull(String s) {

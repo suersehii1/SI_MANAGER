@@ -4,6 +4,7 @@ import com.sipm.assignment.AssignmentRepository;
 import com.sipm.assignment.ProjectAssignment;
 import com.sipm.attachment.FileStorageService;
 import com.sipm.common.error.BusinessException;
+import com.sipm.common.error.OptimisticLocks;
 import com.sipm.common.error.ErrorCode;
 import com.sipm.common.page.PageResponse;
 import com.sipm.common.util.LikePatterns;
@@ -103,6 +104,7 @@ public class ProjectService {
     @Transactional
     public ProjectResponse update(Long id, ProjectRequest req) {
         Project p = get(id);
+        OptimisticLocks.check(p.getVersion(), req.getVersion()); // 다른 사람이 먼저 수정했으면 409
         if (projectRepository.existsByCodeAndIdNot(req.getCode(), id)) {
             throw new BusinessException(ErrorCode.DUPLICATE_PROJECT_CODE);
         }

@@ -14,11 +14,11 @@ public record IssueDetail(Long id, Long projectId, String projectCode, String pr
                           IssueStatus status, IssuePriority priority, int progress, UserSummary assignee,
                           UserSummary reporter, LocalDate dueDate, long attachmentCount,
                           OffsetDateTime createdAt, OffsetDateTime updatedAt,
-                          String description, List<AttachmentResponse> attachments) {
+                          String description, List<AttachmentResponse> attachments, Long version) {
     public static IssueDetail from(Issue i, List<AttachmentResponse> attachments) {
         return new IssueDetail(i.getId(), i.getProject().getId(), i.getProject().getCode(), i.getProject().getName(),
                 i.getTitle(), i.getStatus(), i.getPriority(), i.getProgress(), UserSummary.from(i.getAssignee()),
                 UserSummary.from(i.getReporter()), i.getDueDate(), attachments.size(), i.getCreatedAt(),
-                i.getUpdatedAt(), i.getDescription(), attachments);
+                i.getUpdatedAt(), i.getDescription(), attachments, i.getVersion());
     }
 }

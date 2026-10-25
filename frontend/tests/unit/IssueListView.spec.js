@@ -69,7 +69,7 @@ describe('IssueListView', () => {
 
     expect(createIssue).toHaveBeenCalledWith({
       projectId: 1, title: 'QA 신규 이슈', description: null, status: 'OPEN', priority: 'MEDIUM',
-      progress: 0, assigneeId: null, dueDate: null
+      progress: 0, assigneeId: null, dueDate: null, version: null // 신규 등록은 버전 없음
     })
     // 저장 직후 Grid 재조회 → 새 행이 맨 위
     expect(listIssues).toHaveBeenCalledTimes(2)

@@ -13,5 +13,6 @@ public record WbsItemResponse(Long id, Long projectId, Long parentId, String wbs
                               WbsStatus status, BigDecimal weight,
                               LocalDate plannedStart, LocalDate plannedEnd, LocalDate actualStart, LocalDate actualEnd,
                               BigDecimal progress, Long plannedDays, boolean delayed,
-                              boolean hasChildren, int childCount, boolean rolledUp, OffsetDateTime updatedAt) {
+                              boolean hasChildren, int childCount, boolean rolledUp, OffsetDateTime updatedAt,
+                              Long version) {
 }

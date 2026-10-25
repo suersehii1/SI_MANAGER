@@ -103,7 +103,9 @@ function payload() {
     priority: form.priority,
     progress: form.progress,
     assigneeId: form.assigneeId || null,
-    dueDate: form.dueDate || null
+    dueDate: form.dueDate || null,
+    // 수정이면 불러온 버전을 같이 보낸다 → 그 사이 다른 사람이 저장했으면 서버가 409로 막음 (덮어쓰기 방지)
+    version: props.mode === 'edit' ? props.issue?.version ?? null : null
   }
 }
 

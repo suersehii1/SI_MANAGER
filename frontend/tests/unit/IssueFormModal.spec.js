@@ -22,7 +22,8 @@ vi.mock('@/api/attachments', () => ({ uploadAttachment: vi.fn(), deleteAttachmen
 const issue = {
   id: 10, projectId: 2, title: '주문 API 성능 개선', description: '응답 지연', status: 'IN_PROGRESS',
   priority: 'MEDIUM', progress: 40, assignee: { id: 3, username: 'kim', name: '김철수' }, dueDate: '2026-03-20',
-  reporter: { id: 1 }, attachments: [{ id: 7, originalFilename: 'log.txt', sizeBytes: 100, uploadedBy: { id: 1 }, createdAt: '2026-10-23T09:00:00+09:00' }]
+  reporter: { id: 1 }, attachments: [{ id: 7, originalFilename: 'log.txt', sizeBytes: 100, uploadedBy: { id: 1 }, createdAt: '2026-10-23T09:00:00+09:00' }],
+  version: 3 // 낙관적 잠금 버전: 수정 저장 시 그대로 보내야 한다
 }
 
 function mountModal(props) {
@@ -49,7 +50,7 @@ describe('IssueFormModal', () => {
     expect(document.body.textContent).toContain('이슈 수정')
   })
 
-  it('edit 모드: 제목 변경 후 저장 → update(id, 전체 payload) 호출, saved emit, 모달 닫힘', async () => {
+  it('edit 모드: 제목 변경 후 저장 → update(id, 전체 payload + 불러온 version) 호출, saved emit, 모달 닫힘', async () => {
     updateIssue.mockResolvedValue({ ...issue, title: '변경됨' })
     wrapper = mountModal({ mode: 'edit', issue })
     await settle()
@@ -58,7 +59,7 @@ describe('IssueFormModal', () => {
 
     expect(updateIssue).toHaveBeenCalledWith(10, {
       projectId: 2, title: '변경됨', description: '응답 지연', status: 'IN_PROGRESS', priority: 'MEDIUM',
-      progress: 40, assigneeId: 3, dueDate: '2026-03-20'
+      progress: 40, assigneeId: 3, dueDate: '2026-03-20', version: 3
     })
     expect(createIssue).not.toHaveBeenCalled()
     expect(wrapper.emitted('saved')[0][0].title).toBe('변경됨')
