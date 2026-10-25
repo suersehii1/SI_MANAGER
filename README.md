@@ -2,9 +2,47 @@
 
 SI 프로젝트 인력 투입 현황 대시보드 · Admin 콘솔(프로젝트/할당/사용자/월별 타임시트/계획 vs 실제) · 이슈 관리(Jira-like, 첨부 2MB 제한) · 프로젝트별 WBS 작성/수정.
 
-- Backend: Java 17, Spring Boot 3.3.5, Spring Security + JWT, Spring Data JPA, Flyway, PostgreSQL 16
-- Frontend: Vue 3 + Vite 5, Pinia, Vue Router, Element Plus, AG Grid Community 32, ECharts(vue-echarts)
 - 설계 문서: [`docs/specs.md`](docs/specs.md), WBS 부록 [`docs/specs-wbs.md`](docs/specs-wbs.md) (구현 차이는 specs.md 마지막 "Implementation notes")
+
+## 기술 스택
+
+> 정확한 버전의 기준은 [`frontend/package.json`](frontend/package.json), [`backend/pom.xml`](backend/pom.xml), 각 `Dockerfile`이다. 아래 표는 요약이다.
+
+### 백엔드
+
+| 구분 | 기술 | 버전 | 용도 |
+|---|---|---|---|
+| 언어 | Java | 17 | 서버 개발 언어 |
+| 프레임워크 | Spring Boot | 3.3.5 | REST API 서버 (Spring Web, Validation, Actuator) |
+| 보안 | Spring Security + jjwt | jjwt 0.12.6 | JWT 토큰 로그인, 역할(ADMIN/USER)별 권한 검사 |
+| 데이터 접근 | Spring Data JPA (Hibernate) | Boot 3.3.5 기준 | DB 조회·저장, `@Version` 낙관적 잠금(동시 수정 덮어쓰기 방지) |
+| 커넥션 풀 | HikariCP | Boot 3.3.5 기준 | DB 연결 재사용. 개수·대기 시간은 `docker-compose.yml`의 `DB_POOL_*`로 조정 |
+| DB 마이그레이션 | Flyway | Boot 3.3.5 기준 | 테이블 생성·변경 이력 관리 (`backend/src/main/resources/db/migration`) |
+| 데이터베이스 | PostgreSQL | 16 | 운영 DB |
+| 테스트 | JUnit 5, MockMvc, H2 | Boot 3.3.5 기준 | 통합 테스트 (H2를 PostgreSQL 모드로 실행) |
+
+### 프론트엔드
+
+| 구분 | 기술 | 버전 | 용도 |
+|---|---|---|---|
+| 프레임워크 | Vue 3 (`<script setup>`, JavaScript) | 3.4 | 화면 개발 |
+| 빌드 도구 | Vite | 5.4 | 개발 서버, 배포용 빌드 |
+| 상태 관리 / 라우팅 | Pinia / Vue Router | 2.2 / 4.4 | 로그인 정보·화면 상태 보관, 화면 이동과 권한 가드 |
+| UI 컴포넌트 | Element Plus (+ icons-vue) | 2.8 | 버튼, 입력 폼, 팝업, 탭, 메뉴, 낮/밤 스킨(다크 모드) |
+| **데이터 그리드(표)** | **AG Grid Community** (`ag-grid-community`, `ag-grid-vue3`) | 32.3 | 모든 목록 표: 이슈, 프로젝트, 인원 할당, 사용자, 월별 타임시트, 계획 vs 실제, 대시보드 요약, WBS (테마 `ag-theme-quartz`) |
+| **차트** | **Apache ECharts** (`echarts`, `vue-echarts`) | 5.5 / 6.7 | 대시보드 인원 차트, 계획 vs 실제 막대·선 차트 |
+| **간트 차트** | ECharts custom series (직접 구현) | - | 간트 전용 라이브러리 없이 [`frontend/src/utils/gantt.js`](frontend/src/utils/gantt.js)에서 계획·실제 막대를 그림. 대시보드 타임라인, 월별 타임시트 Gantt, WBS Gantt 공용 |
+| 날짜 처리 | dayjs | 1.11 | 날짜 계산·표시 |
+| HTTP 통신 | axios | 1.7 | API 호출, 로그인 토큰 첨부, 공통 오류 처리 |
+| 테스트 | Vitest, Vue Test Utils, jsdom | 2.1 / 2.4 / 25 | 화면 단위 테스트 |
+
+### 실행 환경
+
+| 구분 | 기술 | 버전 | 용도 |
+|---|---|---|---|
+| 컨테이너 | Docker Compose | - | DB·백엔드·화면 3개 컨테이너 실행 |
+| 웹 서버 | nginx | 1.27 | 화면 파일 제공, `/api` 요청을 백엔드로 전달 |
+| 빌드 이미지 | Node / Maven + Temurin JDK | Node 20 / Maven 3.9, JDK 17 | 컨테이너 안에서 화면·서버 빌드 (PC에 Node 20이 없어도 됨) |
 
 ## 빠른 실행 (Docker Compose)
 
