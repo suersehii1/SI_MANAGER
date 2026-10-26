@@ -2,7 +2,10 @@
 
 SI 프로젝트 인력 투입 현황 대시보드 · Admin 콘솔(프로젝트/할당/사용자/월별 타임시트/계획 vs 실제) · 이슈 관리(Jira-like, 첨부 2MB 제한) · 프로젝트별 WBS 작성/수정.
 
+- **아키텍처 문서**: [`docs/architecture.md`](docs/architecture.md) — 배포본 [PDF](docs/export/architecture.pdf) · [Word](docs/export/architecture.docx)
+- **사용 매뉴얼**: [`docs/user-manual.md`](docs/user-manual.md) — 배포본 [PDF](docs/export/user-manual.pdf) · [Word](docs/export/user-manual.docx)
 - 설계 문서: [`docs/specs.md`](docs/specs.md), WBS 부록 [`docs/specs-wbs.md`](docs/specs-wbs.md) (구현 차이는 specs.md 마지막 "Implementation notes")
+- 배포본 다시 만드는 방법: [`docs/tools/README.md`](docs/tools/README.md)
 
 ## 기술 스택
 

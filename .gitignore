@@ -49,3 +49,6 @@ desktop.ini
 # ===== Claude Code 로컬 설정 (에이전트 정의 .claude/agents 는 공유) =====
 .claude/settings.local.json
 .claude/worktrees/
+
+# 문서 변환 중간 파일 (docs/tools/build-docs.ps1 이 매번 다시 만듦)
+docs/export/build/
